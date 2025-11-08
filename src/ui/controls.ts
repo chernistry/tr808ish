@@ -16,21 +16,18 @@ export class Controls {
     const container = document.getElementById(containerId);
     if (!container) throw new Error(`Container ${containerId} not found`);
 
+    // Only create Play/Stop buttons
     container.innerHTML = `
-      <div class="controls-group">
-        <button id="play-btn" class="control-btn">▶ Play</button>
-        <button id="stop-btn" class="control-btn">■ Stop</button>
-      </div>
-      <div class="controls-group">
-        <label for="bpm-slider">BPM: <span id="bpm-display">120</span></label>
-        <input type="range" id="bpm-slider" min="60" max="240" value="120" />
-      </div>
+      <button id="play-btn" class="control-btn">▶ Play</button>
+      <button id="stop-btn" class="control-btn">■ Stop</button>
     `;
 
     this.playBtn = container.querySelector('#play-btn')!;
     this.stopBtn = container.querySelector('#stop-btn')!;
-    this.bpmSlider = container.querySelector('#bpm-slider')!;
-    this.bpmDisplay = container.querySelector('#bpm-display')!;
+    
+    // Use existing BPM controls from HTML
+    this.bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
+    this.bpmDisplay = document.getElementById('bpm-display') as HTMLElement;
 
     this.playBtn.addEventListener('click', async () => {
       await initAudio();
