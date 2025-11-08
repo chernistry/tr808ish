@@ -2,7 +2,8 @@
 
 ![TR-808 Synth Screenshot](./assets/screenshot.png)
 
-A professional-grade drum sequencer created with AI in about 30 minutes, inspired by the classic TR-808 but not pretending to replicate the original. A modern VST-style interface with comprehensive functionality. Use it freely in your projects!
+A simple drum sequencer created with AI in about half an hour, inspired by the classic TR-808 but not pretending to replicate the original. Use it freely in your projects!
+
 
 This project demonstrates the SDD (Spec-Driven Development) approach - a methodology for rapid development using AI agents with structured prompts and templates. For more details on SDD, check out [SDDRush](https://github.com/chernistry/SDDRush).
 
