@@ -3,6 +3,7 @@ class MockAudioContext {
   currentTime = 0;
   state = 'running';
   destination = {};
+  sampleRate = 44100;
 
   async resume(): Promise<void> {
     this.state = 'running';
@@ -10,6 +11,16 @@ class MockAudioContext {
 
   async close(): Promise<void> {
     this.state = 'closed';
+  }
+
+  createBuffer(channels: number, length: number, sampleRate: number): AudioBuffer {
+    return {
+      duration: length / sampleRate,
+      length,
+      numberOfChannels: channels,
+      sampleRate,
+      getChannelData: () => new Float32Array(length),
+    } as AudioBuffer;
   }
 }
 
@@ -58,6 +69,20 @@ global.OscillatorNode = class {
 // @ts-expect-error - Mocking global
 global.GainNode = class {
   gain = { setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {} };
+  connect() {
+    return this;
+  }
+};
+// @ts-expect-error - Mocking global
+global.AudioBufferSourceNode = class {
+  connect() {
+    return this;
+  }
+  start() {}
+  stop() {}
+};
+// @ts-expect-error - Mocking global
+global.BiquadFilterNode = class {
   connect() {
     return this;
   }
