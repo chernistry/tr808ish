@@ -1,4 +1,4 @@
-# TR-808 Synth
+# tr808ish
 
 ![TR-808 Synth Screenshot](./assets/screenshot.png)
 
