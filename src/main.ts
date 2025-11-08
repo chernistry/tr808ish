@@ -55,11 +55,12 @@ const controls = new Controls('controls', {
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    const state = store.getState();
     const bpm = controls.getBpm();
 
+    // FIX: Read pattern state on EACH step, not just at start
     scheduler.start(ctx, bpm, (step, time) => {
-      Object.entries(state.pattern.steps).forEach(([instrument, steps]) => {
+      const currentState = store.getState(); // Read fresh state every step
+      Object.entries(currentState.pattern.steps).forEach(([instrument, steps]) => {
         if (steps[step]) {
           const voice = voiceMap[instrument as keyof typeof voiceMap];
           voice(ctx, time);
@@ -89,8 +90,10 @@ const controls = new Controls('controls', {
       visualizer.stop();
       const ctx = getAudioContext();
       if (ctx) {
+        // FIX: Same here - read state on each step
         scheduler.start(ctx, bpm, (step, time) => {
-          Object.entries(state.pattern.steps).forEach(([instrument, steps]) => {
+          const currentState = store.getState();
+          Object.entries(currentState.pattern.steps).forEach(([instrument, steps]) => {
             if (steps[step]) {
               const voice = voiceMap[instrument as keyof typeof voiceMap];
               voice(ctx, time);
