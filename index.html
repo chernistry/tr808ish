@@ -3,111 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TR-808 Drum Machine</title>
+  <title>TR-808 Synth - Modern VST-Style Drum Machine</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <div id="app">
-    <header role="banner">
-      <div class="logo">TR-808</div>
-      
-      <div class="transport" role="group" aria-label="Transport controls">
+    <!-- Header - Transport & Master Controls -->
+    <header role="banner" class="vst-panel">
+      <div class="logo">TR-808 SYNTH</div>
+
+      <div class="transport-group" role="group" aria-label="Transport controls">
         <div id="controls"></div>
       </div>
-      
-      <div class="control-group">
-        <label for="bpm-slider">BPM</label>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <input type="range" id="bpm-slider" min="60" max="240" value="134" aria-label="Tempo">
-          <span id="bpm-display" class="value-display" aria-live="polite">134</span>
+
+      <div class="master-controls">
+        <div class="control-group">
+          <label for="bpm-slider">BPM</label>
+          <div class="slider-container">
+            <input type="range" id="bpm-slider" min="60" max="240" value="134" aria-label="Tempo">
+            <span id="bpm-display" class="value-display" aria-live="polite">134</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="swing-slider">SWING</label>
+          <div class="slider-container">
+            <input type="range" id="swing-slider" min="0" max="75" value="55" aria-label="Swing amount">
+            <span id="swing-display" class="value-display" aria-live="polite">55%</span>
+          </div>
         </div>
       </div>
-      
-      <div class="control-group">
-        <label for="swing-slider">Swing</label>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <input type="range" id="swing-slider" min="0" max="75" value="55" aria-label="Swing amount">
-          <span id="swing-display" class="value-display" aria-live="polite">55%</span>
-        </div>
-      </div>
-      
+
       <button class="control-btn secondary" id="default-pattern-btn" aria-label="Load default pattern" title="Load default UK Garage pattern">
-        Default
+        DEFAULT
       </button>
-      
+
       <button class="control-btn secondary" id="theme-toggle" aria-label="Toggle theme">
         🌙
       </button>
     </header>
-    
-    <main role="main">
-      <section class="sequencer-section" aria-label="Step sequencer">
-        <h2 class="section-title">Step Sequencer</h2>
+
+    <!-- Main Content Area -->
+    <main role="main" class="main-content">
+      <!-- Pattern Sequencer Section -->
+      <section class="sequencer-section vst-panel" aria-label="Step sequencer">
+        <h2 class="section-title">PATTERN SEQUENCER</h2>
         <div id="sequencer"></div>
       </section>
-      
+
+      <!-- Sidebar with Mixer and Info -->
       <aside class="sidebar">
-        <div class="panel" role="region" aria-label="Voice Parameters">
+        <!-- Mixer Section -->
+        <div class="panel vst-panel" role="region" aria-label="Mixer">
+          <h3 class="panel-title">MIXER</h3>
+          <div id="mixer"></div>
+        </div>
+
+        <!-- Voice Parameters Section -->
+        <div class="panel vst-panel" role="region" aria-label="Voice Parameters">
+          <h3 class="panel-title">PARAMETERS</h3>
           <div id="voice-params"></div>
         </div>
-        
-        <div class="panel" role="region" aria-label="Info">
-          <h3 class="panel-title">Info</h3>
-          <div style="font-size: 12px; color: var(--color-text-secondary); line-height: 1.6;">
-            <p><strong>12 Voices:</strong></p>
-            <p style="font-size: 11px;">BD, SD, LT, MT, HT, RS<br>CP, CH, OH, CY, RD, CB</p>
-            <p style="margin-top: 8px;"><strong>Click voice label</strong> to edit params</p>
-            <p style="margin-top: 8px;">Press <kbd>?</kbd> for shortcuts</p>
+
+        <!-- Info Section -->
+        <div class="panel vst-panel" role="region" aria-label="Info">
+          <h3 class="panel-title">INFO</h3>
+          <div class="info-content">
+            <p><strong>12 VOICES:</strong></p>
+            <p class="voice-list">BD, SD, LT, MT, HT, RS<br>CP, CH, OH, CY, RD, CB</p>
+            <p><strong>Click voice label</strong> to edit params</p>
+            <p>Press <kbd>?</kbd> for shortcuts</p>
           </div>
         </div>
       </aside>
     </main>
-    
+
+    <!-- Footer -->
     <footer role="contentinfo">
       <div class="status">
-        <span id="status-text">Ready</span>
+        <span id="status-text">READY</span>
         <span>•</span>
         <span id="perf-text">FPS: --</span>
       </div>
       <button class="help-btn" id="help-btn" aria-label="Show keyboard shortcuts">
-        Keyboard Shortcuts (?)
+        SHORTCUTS
       </button>
     </footer>
   </div>
-  
+
+  <!-- Help Overlay -->
   <div class="help-overlay" id="help-overlay" role="dialog" aria-labelledby="help-title" aria-modal="true">
     <div class="help-content">
-      <h2 id="help-title">Keyboard Shortcuts</h2>
-      
-      <h3>Transport</h3>
+      <h2 id="help-title">KEYBOARD SHORTCUTS</h2>
+
+      <h3>TRANSPORT</h3>
       <ul>
         <li><span>Play/Stop</span> <kbd>Space</kbd></li>
         <li><span>Increase BPM</span> <kbd>+</kbd></li>
         <li><span>Decrease BPM</span> <kbd>-</kbd></li>
       </ul>
-      
-      <h3>Navigation</h3>
+
+      <h3>NAVIGATION</h3>
       <ul>
         <li><span>Select voice 1-5</span> <kbd>1</kbd> - <kbd>5</kbd></li>
         <li><span>Toggle step</span> <kbd>Enter</kbd></li>
         <li><span>Next step</span> <kbd>→</kbd></li>
         <li><span>Previous step</span> <kbd>←</kbd></li>
       </ul>
-      
-      <h3>Other</h3>
+
+      <h3>OTHER</h3>
       <ul>
         <li><span>Toggle theme</span> <kbd>T</kbd></li>
         <li><span>Load default pattern</span> <kbd>D</kbd></li>
         <li><span>Show help</span> <kbd>?</kbd></li>
         <li><span>Close help</span> <kbd>Esc</kbd></li>
       </ul>
-      
-      <button class="control-btn" onclick="document.getElementById('help-overlay').classList.remove('visible')" style="margin-top: 16px; width: 100%;">
-        Close
+
+      <button class="control-btn" onclick="document.getElementById('help-overlay').classList.remove('visible')">
+        CLOSE
       </button>
     </div>
   </div>
-  
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

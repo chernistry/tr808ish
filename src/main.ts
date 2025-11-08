@@ -16,6 +16,7 @@ import { Controls } from './ui/controls';
 import { SequencerGrid } from './ui/sequencerGrid';
 import { Visualizer } from './ui/visualizer';
 import { VoiceParamsPanel } from './ui/voiceParamsPanel';
+import { Mixer } from './ui/mixer';
 import { store } from './state/store';
 import { toggleStep, createDefaultPattern } from './state/pattern';
 import { loadPattern, savePattern } from './storage/localStorage';
@@ -57,6 +58,9 @@ const grid = new SequencerGrid('sequencer', {
 
 // Voice params panel
 const paramsPanel = new VoiceParamsPanel('voice-params');
+
+// Mixer panel
+const mixer = new Mixer('mixer');
 
 // Add click handlers to instrument labels
 document.addEventListener('click', (e) => {
