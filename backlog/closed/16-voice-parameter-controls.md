@@ -9,7 +9,7 @@
 
 ## Objective
 
-Add real-time parameter controls for each voice - the "крутилки" that make TR-808 legendary. Each voice needs tunable parameters that affect synthesis in real-time.
+Add real-time parameter controls for each voice - the "knobs" that make TR-808 legendary. Each voice needs tunable parameters that affect synthesis in real-time.
 
 ---
 

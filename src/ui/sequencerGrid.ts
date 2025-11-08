@@ -18,9 +18,23 @@ export class SequencerGrid {
   private render(callbacks: SequencerGridCallbacks): void {
     this.container.innerHTML = '';
 
+    // Header with step indices 1..16
+    const header = createElement('div', 'sequencer-header');
+    const spacer = createElement('div', 'instrument-spacer');
+    header.appendChild(spacer);
+    for (let step = 0; step < 16; step++) {
+      const idx = createElement('div', 'step-index');
+      idx.textContent = ((step + 1) % 16).toString();
+      idx.setAttribute('data-step', String(step));
+      header.appendChild(idx);
+    }
+    this.container.appendChild(header);
+
     this.instruments.forEach((instrument) => {
       const row = createElement('div', 'sequencer-row');
-      const label = createElement('div', 'instrument-label');
+      const label = createElement('div', 'instrument-label', {
+        'data-instrument': instrument,
+      });
       label.textContent = instrument;
       row.appendChild(label);
 

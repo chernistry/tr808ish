@@ -164,6 +164,25 @@ main {
   gap: var(--space-sm);
 }
 
+.sequencer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
+.instrument-spacer {
+  width: 50px;
+}
+
+.step-index {
+  width: 40px;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  opacity: 0.7;
+}
+
 .sequencer-row {
   display: flex;
   gap: var(--space-xs);
@@ -197,6 +216,31 @@ main {
   transition: all var(--transition-fast);
   border-radius: var(--radius-sm);
   position: relative;
+}
+
+/* Grouping every 4 steps */
+.step-button[data-step="0"],
+.step-button[data-step="4"],
+.step-button[data-step="8"],
+.step-button[data-step="12"] {
+  margin-left: var(--space-sm);
+}
+
+.step-button::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #444;
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.8);
+}
+
+.step-button.active::after {
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
 }
 
 .step-button:hover {
@@ -249,6 +293,20 @@ main {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* Instrument color hints (subtle) */
+.instrument-label[data-instrument="BD"] { border-left: 3px solid #ff6b35; }
+.instrument-label[data-instrument="SD"] { border-left: 3px solid #ffaa00; }
+.instrument-label[data-instrument="CP"] { border-left: 3px solid #ff3385; }
+.instrument-label[data-instrument="CH"],
+.instrument-label[data-instrument="OH"] { border-left: 3px solid #66d9ef; }
+.instrument-label[data-instrument="LT"],
+.instrument-label[data-instrument="MT"],
+.instrument-label[data-instrument="HT"] { border-left: 3px solid #c594c5; }
+.instrument-label[data-instrument="RS"],
+.instrument-label[data-instrument="CB"] { border-left: 3px solid #a6e22e; }
+.instrument-label[data-instrument="CY"],
+.instrument-label[data-instrument="RD"] { border-left: 3px solid #f92672; }
 
 .mixer-strip {
   display: flex;
