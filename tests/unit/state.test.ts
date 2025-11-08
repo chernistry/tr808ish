@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createEmptyPattern, toggleStep } from '../../src/state/pattern';
+import { createEmptyPattern, createDefaultPattern, toggleStep } from '../../src/state/pattern';
 import { store } from '../../src/state/store';
 
 describe('Pattern', () => {
@@ -8,6 +8,13 @@ describe('Pattern', () => {
     expect(pattern.bpm).toBe(120);
     expect(pattern.steps.BD).toHaveLength(16);
     expect(pattern.steps.BD.every((s) => s === false)).toBe(true);
+  });
+
+  it('should create default pattern', () => {
+    const pattern = createDefaultPattern();
+    expect(pattern.bpm).toBe(130);
+    expect(pattern.name).toBe('Atmospheric UK Garage');
+    expect(pattern.steps.BD).toHaveLength(16);
   });
 
   it('should toggle step', () => {
@@ -28,7 +35,7 @@ describe('Pattern', () => {
 describe('Store', () => {
   it('should have initial state', () => {
     const state = store.getState();
-    expect(state.pattern.bpm).toBe(120);
+    expect(state.pattern.bpm).toBe(130); // Default pattern BPM
     expect(state.playback.isPlaying).toBe(false);
   });
 
@@ -44,7 +51,7 @@ describe('Store', () => {
     const unsubscribe = store.subscribe(() => {
       called = true;
     });
-    store.setState({ playback: { isPlaying: false, currentStep: 0, bpm: 120 } });
+    store.setState({ playback: { isPlaying: false, currentStep: 0, bpm: 130 } });
     expect(called).toBe(true);
     unsubscribe();
   });

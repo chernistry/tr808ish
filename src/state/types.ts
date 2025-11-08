@@ -4,9 +4,16 @@ export interface Pattern {
   steps: {
     BD: boolean[];
     SD: boolean[];
+    LT: boolean[];
+    MT: boolean[];
+    HT: boolean[];
+    RS: boolean[];
+    CP: boolean[];
     CH: boolean[];
     OH: boolean[];
-    CP: boolean[];
+    CY: boolean[];
+    RD: boolean[];
+    CB: boolean[];
   };
 }
 

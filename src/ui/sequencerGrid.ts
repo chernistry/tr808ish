@@ -6,7 +6,7 @@ export interface SequencerGridCallbacks {
 
 export class SequencerGrid {
   private container: HTMLElement;
-  private instruments = ['BD', 'SD', 'CH', 'OH', 'CP'];
+  private instruments = ['BD', 'SD', 'LT', 'MT', 'HT', 'RS', 'CP', 'CH', 'OH', 'CY', 'RD', 'CB'];
 
   constructor(containerId: string, callbacks: SequencerGridCallbacks) {
     const el = document.getElementById(containerId);

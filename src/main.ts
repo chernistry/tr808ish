@@ -2,9 +2,16 @@ import { getAudioContext } from './audio/audioContext';
 import { AudioScheduler } from './audio/scheduler';
 import { playBD } from './audio/voices/bassDrum';
 import { playSD } from './audio/voices/snareDrum';
+import { playLT } from './audio/voices/lowTom';
+import { playMT } from './audio/voices/midTom';
+import { playHT } from './audio/voices/highTom';
+import { playRS } from './audio/voices/rimshot';
+import { playCP } from './audio/voices/clap';
 import { playCH } from './audio/voices/closedHiHat';
 import { playOH } from './audio/voices/openHiHat';
-import { playCP } from './audio/voices/clap';
+import { playCY } from './audio/voices/crashCymbal';
+import { playRD } from './audio/voices/rideCymbal';
+import { playCB } from './audio/voices/cowbell';
 import { Controls } from './ui/controls';
 import { SequencerGrid } from './ui/sequencerGrid';
 import { Visualizer } from './ui/visualizer';
@@ -13,8 +20,35 @@ import { toggleStep, createDefaultPattern } from './state/pattern';
 import { loadPattern, savePattern } from './storage/localStorage';
 
 const scheduler = new AudioScheduler();
-const voiceMap = { BD: playBD, SD: playSD, CH: playCH, OH: playOH, CP: playCP };
-const voiceLevels = { BD: 1.0, SD: 1.0, CH: 0.7, OH: 0.8, CP: 0.6 };
+const voiceMap = {
+  BD: playBD,
+  SD: playSD,
+  LT: playLT,
+  MT: playMT,
+  HT: playHT,
+  RS: playRS,
+  CP: playCP,
+  CH: playCH,
+  OH: playOH,
+  CY: playCY,
+  RD: playRD,
+  CB: playCB,
+};
+
+const voiceLevels = {
+  BD: 1.0,
+  SD: 1.0,
+  LT: 0.9,
+  MT: 0.9,
+  HT: 0.9,
+  RS: 0.8,
+  CP: 0.6,
+  CH: 0.7,
+  OH: 0.8,
+  CY: 0.6,
+  RD: 0.5,
+  CB: 0.7,
+};
 
 // Load saved pattern or use default
 const savedPattern = loadPattern();
@@ -39,14 +73,14 @@ const grid = new SequencerGrid('sequencer', {
 // Function to load pattern into UI
 function loadPatternToUI(): void {
   const state = store.getState();
-  
+
   // Clear all steps first
   Object.keys(state.pattern.steps).forEach((instrument) => {
     for (let step = 0; step < 16; step++) {
       grid.setStepActive(instrument, step, false);
     }
   });
-  
+
   // Set active steps
   Object.entries(state.pattern.steps).forEach(([instrument, steps]) => {
     steps.forEach((active, step) => {
@@ -55,7 +89,7 @@ function loadPatternToUI(): void {
       }
     });
   });
-  
+
   // Update BPM
   const bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
   const bpmDisplay = document.getElementById('bpm-display') as HTMLElement;
@@ -63,7 +97,7 @@ function loadPatternToUI(): void {
     bpmSlider.value = state.pattern.bpm.toString();
     bpmDisplay.textContent = state.pattern.bpm.toString();
   }
-  
+
   updateStatus(`Loaded: ${state.pattern.name}`);
 }
 
@@ -167,7 +201,6 @@ function initMixer(): void {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-  // Ignore if typing in input
   if (e.target instanceof HTMLInputElement) return;
 
   if (e.key === ' ') {
@@ -286,4 +319,5 @@ document.getElementById('help-overlay')?.addEventListener('click', (e) => {
 });
 
 console.log(`TR-808 initialized - ${initialState.pattern.name} @ ${initialState.pattern.bpm} BPM`);
+console.log('12 voices: BD, SD, LT, MT, HT, RS, CP, CH, OH, CY, RD, CB');
 console.log('Press ? for shortcuts, D for default pattern');
