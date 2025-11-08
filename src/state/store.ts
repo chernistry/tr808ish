@@ -1,5 +1,5 @@
 import type { AppState } from './types';
-import { createEmptyPattern } from './pattern';
+import { createDefaultPattern } from './pattern';
 
 type Listener = (state: AppState) => void;
 
@@ -9,11 +9,11 @@ class Store {
 
   constructor() {
     this.state = {
-      pattern: createEmptyPattern(),
+      pattern: createDefaultPattern(), // Use default UK garage pattern
       playback: {
         isPlaying: false,
         currentStep: 0,
-        bpm: 120,
+        bpm: 130, // Match default pattern BPM
       },
     };
   }

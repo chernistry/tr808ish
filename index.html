@@ -18,10 +18,14 @@
       <div class="control-group">
         <label for="bpm-slider">BPM</label>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <input type="range" id="bpm-slider" min="60" max="240" value="120" aria-label="Tempo">
-          <span id="bpm-display" class="value-display" aria-live="polite">120</span>
+          <input type="range" id="bpm-slider" min="60" max="240" value="130" aria-label="Tempo">
+          <span id="bpm-display" class="value-display" aria-live="polite">130</span>
         </div>
       </div>
+      
+      <button class="control-btn secondary" id="default-pattern-btn" aria-label="Load default pattern" title="Load default UK Garage pattern">
+        Default
+      </button>
       
       <button class="control-btn secondary" id="theme-toggle" aria-label="Toggle theme">
         🌙
@@ -86,6 +90,7 @@
       <h3>Other</h3>
       <ul>
         <li><span>Toggle theme</span> <kbd>T</kbd></li>
+        <li><span>Load default pattern</span> <kbd>D</kbd></li>
         <li><span>Show help</span> <kbd>?</kbd></li>
         <li><span>Close help</span> <kbd>Esc</kbd></li>
       </ul>

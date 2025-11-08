@@ -9,14 +9,14 @@ import { Controls } from './ui/controls';
 import { SequencerGrid } from './ui/sequencerGrid';
 import { Visualizer } from './ui/visualizer';
 import { store } from './state/store';
-import { toggleStep } from './state/pattern';
+import { toggleStep, createDefaultPattern } from './state/pattern';
 import { loadPattern, savePattern } from './storage/localStorage';
 
 const scheduler = new AudioScheduler();
 const voiceMap = { BD: playBD, SD: playSD, CH: playCH, OH: playOH, CP: playCP };
 const voiceLevels = { BD: 1.0, SD: 1.0, CH: 0.7, OH: 0.8, CP: 0.6 };
 
-// Load saved pattern
+// Load saved pattern or use default
 const savedPattern = loadPattern();
 if (savedPattern) {
   store.setState({ pattern: savedPattern });
@@ -36,15 +36,47 @@ const grid = new SequencerGrid('sequencer', {
   },
 });
 
-// Restore pattern state in UI
-const initialState = store.getState();
-Object.entries(initialState.pattern.steps).forEach(([instrument, steps]) => {
-  steps.forEach((active, step) => {
-    if (active) {
-      grid.setStepActive(instrument, step, true);
+// Function to load pattern into UI
+function loadPatternToUI(): void {
+  const state = store.getState();
+  
+  // Clear all steps first
+  Object.keys(state.pattern.steps).forEach((instrument) => {
+    for (let step = 0; step < 16; step++) {
+      grid.setStepActive(instrument, step, false);
     }
   });
-});
+  
+  // Set active steps
+  Object.entries(state.pattern.steps).forEach(([instrument, steps]) => {
+    steps.forEach((active, step) => {
+      if (active) {
+        grid.setStepActive(instrument, step, true);
+      }
+    });
+  });
+  
+  // Update BPM
+  const bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
+  const bpmDisplay = document.getElementById('bpm-display') as HTMLElement;
+  if (bpmSlider && bpmDisplay) {
+    bpmSlider.value = state.pattern.bpm.toString();
+    bpmDisplay.textContent = state.pattern.bpm.toString();
+  }
+  
+  updateStatus(`Loaded: ${state.pattern.name}`);
+}
+
+// Load default pattern function
+function loadDefaultPattern(): void {
+  const defaultPattern = createDefaultPattern();
+  store.setState({ pattern: defaultPattern });
+  savePattern(defaultPattern);
+  loadPatternToUI();
+}
+
+// Restore pattern state in UI
+loadPatternToUI();
 
 const visualizer = new Visualizer((step) => {
   grid.highlightStep(step);
@@ -57,9 +89,8 @@ const controls = new Controls('controls', {
 
     const bpm = controls.getBpm();
 
-    // FIX: Read pattern state on EACH step, not just at start
     scheduler.start(ctx, bpm, (step, time) => {
-      const currentState = store.getState(); // Read fresh state every step
+      const currentState = store.getState();
       Object.entries(currentState.pattern.steps).forEach(([instrument, steps]) => {
         if (steps[step]) {
           const voice = voiceMap[instrument as keyof typeof voiceMap];
@@ -90,7 +121,6 @@ const controls = new Controls('controls', {
       visualizer.stop();
       const ctx = getAudioContext();
       if (ctx) {
-        // FIX: Same here - read state on each step
         scheduler.start(ctx, bpm, (step, time) => {
           const currentState = store.getState();
           Object.entries(currentState.pattern.steps).forEach(([instrument, steps]) => {
@@ -180,6 +210,12 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 't' || e.key === 'T') {
     e.preventDefault();
     toggleTheme();
+    return;
+  }
+
+  if (e.key === 'd' || e.key === 'D') {
+    e.preventDefault();
+    loadDefaultPattern();
   }
 });
 
@@ -235,16 +271,19 @@ function updateFPS(): void {
 
 // Initialize
 initMixer();
-updateStatus('Ready');
+const initialState = store.getState();
+updateStatus(`Ready - ${initialState.pattern.name}`);
 requestAnimationFrame(updateFPS);
 
 // Help button
 document.getElementById('help-btn')?.addEventListener('click', toggleHelp);
 document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+document.getElementById('default-pattern-btn')?.addEventListener('click', loadDefaultPattern);
 
 // Close help on overlay click
 document.getElementById('help-overlay')?.addEventListener('click', (e) => {
   if (e.target === e.currentTarget) closeHelp();
 });
 
-console.log('TR-808 initialized - Press ? for shortcuts');
+console.log(`TR-808 initialized - ${initialState.pattern.name} @ ${initialState.pattern.bpm} BPM`);
+console.log('Press ? for shortcuts, D for default pattern');
