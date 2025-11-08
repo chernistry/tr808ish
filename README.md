@@ -1,62 +1,38 @@
-# TR-808 Drum Machine
+# TR-808 Synth
 
-Web-based emulation of the classic Roland TR-808 drum machine using Web Audio API.
+A simple drum sequencer created with AI in about 30 minutes, inspired by the classic TR-808 but not pretending to replicate the original. Use it freely in your projects!
+
+This project demonstrates the SDD (Spec-Driven Development) approach - a methodology for rapid development using AI agents with structured prompts and templates. For more details on SDD, check out [SDDRush](https://github.com/chernistry/SDDRush) or look at the `/Users/sasha/IdeaProjects/personal_projects/sdd` directory.
+
+All prompts used in this project are available in both locations - the SDDRush repo and the sdd directory within this project.
 
 ## Features
 
-- 5 synthesized drum voices (BD, SD, CH, OH, CP)
-- 16-step sequencer
-- Adjustable BPM (60-240)
-- Pattern save/load via localStorage
-- Visual step highlighting
+- 5 synthesized drum voices (Bass Drum, Snare, Closed Hi-Hat, Open Hi-Hat, Clap)
+- 16-step sequencer grid
+- Adjustable tempo (60-240 BPM)
+- Pattern saving/loading via browser storage
+- Visual step highlighting during playback
 
-## Tech Stack
-
-- **Frontend**: Vanilla TypeScript
-- **Audio**: Web Audio API
-- **Build**: Vite 6
-- **Testing**: Vitest 4 + Playwright
-- **Linting**: ESLint + Prettier
-
-## Setup
+## How to Use
 
 ```bash
 # Install dependencies
 npm install
 
-# Start dev server
+# Start development server
 npm run dev
 
 # Build for production
 npm run build
-
-# Run tests
-npm run test        # Unit tests
-npm run e2e         # E2E tests
-npm run lint        # Linting
 ```
 
-## Project Structure
+## Tech Stack
 
-```
-src/
-├── audio/          # Web Audio API logic
-│   ├── voices/     # Drum voice synthesizers
-│   └── scheduler.ts
-├── ui/             # UI components
-├── state/          # State management
-└── storage/        # localStorage persistence
-
-tests/
-├── unit/           # Vitest unit tests
-└── e2e/            # Playwright E2E tests
-```
-
-## Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
+- TypeScript
+- Web Audio API
+- Vite
+- Tests: Vitest + Playwright
 
 ## License
 

@@ -50,13 +50,11 @@ const voiceLevels = {
   CB: 0.7,
 };
 
-// Load saved pattern or use default
 const savedPattern = loadPattern();
 if (savedPattern) {
   store.setState({ pattern: savedPattern });
 }
 
-// Initialize UI
 const grid = new SequencerGrid('sequencer', {
   onStepToggle: (instrument, step) => {
     const state = store.getState();
@@ -70,18 +68,15 @@ const grid = new SequencerGrid('sequencer', {
   },
 });
 
-// Function to load pattern into UI
 function loadPatternToUI(): void {
   const state = store.getState();
 
-  // Clear all steps first
   Object.keys(state.pattern.steps).forEach((instrument) => {
     for (let step = 0; step < 16; step++) {
       grid.setStepActive(instrument, step, false);
     }
   });
 
-  // Set active steps
   Object.entries(state.pattern.steps).forEach(([instrument, steps]) => {
     steps.forEach((active, step) => {
       if (active) {
@@ -90,7 +85,6 @@ function loadPatternToUI(): void {
     });
   });
 
-  // Update BPM
   const bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
   const bpmDisplay = document.getElementById('bpm-display') as HTMLElement;
   if (bpmSlider && bpmDisplay) {
@@ -101,7 +95,6 @@ function loadPatternToUI(): void {
   updateStatus(`Loaded: ${state.pattern.name}`);
 }
 
-// Load default pattern function
 function loadDefaultPattern(): void {
   const defaultPattern = createDefaultPattern();
   store.setState({ pattern: defaultPattern });
@@ -109,7 +102,6 @@ function loadDefaultPattern(): void {
   loadPatternToUI();
 }
 
-// Restore pattern state in UI
 loadPatternToUI();
 
 const visualizer = new Visualizer((step) => {
@@ -171,7 +163,16 @@ const controls = new Controls('controls', {
   },
 });
 
-// Mixer controls
+// Swing control
+const swingSlider = document.getElementById('swing-slider') as HTMLInputElement;
+const swingDisplay = document.getElementById('swing-display') as HTMLElement;
+
+swingSlider.addEventListener('input', () => {
+  const swing = parseInt(swingSlider.value, 10) / 100;
+  swingDisplay.textContent = `${swingSlider.value}%`;
+  scheduler.setSwing(swing);
+});
+
 function initMixer(): void {
   const mixer = document.getElementById('mixer');
   if (!mixer) return;
@@ -199,7 +200,6 @@ function initMixer(): void {
   });
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement) return;
 
@@ -285,7 +285,6 @@ function updateStatus(text: string): void {
   if (status) status.textContent = text;
 }
 
-// Performance monitoring
 let lastTime = window.performance.now();
 let frames = 0;
 
@@ -302,18 +301,15 @@ function updateFPS(): void {
   requestAnimationFrame(updateFPS);
 }
 
-// Initialize
 initMixer();
 const initialState = store.getState();
 updateStatus(`Ready - ${initialState.pattern.name}`);
 requestAnimationFrame(updateFPS);
 
-// Help button
 document.getElementById('help-btn')?.addEventListener('click', toggleHelp);
 document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
 document.getElementById('default-pattern-btn')?.addEventListener('click', loadDefaultPattern);
 
-// Close help on overlay click
 document.getElementById('help-overlay')?.addEventListener('click', (e) => {
   if (e.target === e.currentTarget) closeHelp();
 });
