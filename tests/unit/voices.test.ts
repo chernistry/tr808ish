@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { playBD } from '../../src/audio/voices/bassDrum';
 import { playSD } from '../../src/audio/voices/snareDrum';
+import { playCH } from '../../src/audio/voices/closedHiHat';
+import { playOH } from '../../src/audio/voices/openHiHat';
 
 describe('Bass Drum', () => {
   it('should render without errors', async () => {
@@ -51,5 +53,27 @@ describe('Snare Drum', () => {
     const buffer = await ctx.startRendering();
 
     expect(buffer.duration).toBe(1);
+  });
+});
+
+describe('Closed Hi-Hat', () => {
+  it('should render without errors', async () => {
+    const ctx = new OfflineAudioContext(1, 44100, 44100);
+    playCH(ctx, 0);
+    const buffer = await ctx.startRendering();
+
+    const data = buffer.getChannelData(0);
+    expect(data.some((v) => Math.abs(v) > 0.001)).toBe(true);
+  });
+});
+
+describe('Open Hi-Hat', () => {
+  it('should render without errors', async () => {
+    const ctx = new OfflineAudioContext(1, 44100, 44100);
+    playOH(ctx, 0);
+    const buffer = await ctx.startRendering();
+
+    const data = buffer.getChannelData(0);
+    expect(data.some((v) => Math.abs(v) > 0.001)).toBe(true);
   });
 });
