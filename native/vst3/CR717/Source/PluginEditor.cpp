@@ -293,50 +293,57 @@ void CR717Editor::paintFooter(juce::Graphics& g, juce::Rectangle<int> area)
 
 void CR717Editor::resized()
 {
+    using namespace DesignTokens;
+    
     auto bounds = getLocalBounds();
-    const int pad = ui::tokens::spacing::MD;
     
-    UiGrid grid(getWidth());
+    // Top bar (72px fixed height per spec)
+    auto topBarArea = bounds.removeFromTop(72);
+    // TopBar will be added in next ticket
     
-    // Header (60px)
-    auto headerArea = bounds.removeFromTop(60);
+    // Preset/Pattern controls (50px)
+    auto presetArea = bounds.removeFromTop(50).reduced(Spacing::md, Spacing::sm);
+    auto presetRow = presetArea;
     
-    // Preset browser (50px) - spans 8 columns
-    auto presetArea = bounds.removeFromTop(50).reduced(pad, ui::tokens::spacing::SM);
-    prevPresetButton.setBounds(presetArea.removeFromLeft(40));
-    presetArea.removeFromLeft(ui::tokens::spacing::SM);
-    presetSelector.setBounds(presetArea.removeFromLeft(300));
-    presetArea.removeFromLeft(ui::tokens::spacing::SM);
-    nextPresetButton.setBounds(presetArea.removeFromLeft(40));
-    presetArea.removeFromLeft(ui::tokens::spacing::LG);
-    copyButton.setBounds(presetArea.removeFromLeft(60));
-    pasteButton.setBounds(presetArea.removeFromLeft(60).translated(ui::tokens::spacing::SM, 0));
-    clearButton.setBounds(presetArea.removeFromLeft(60).translated(ui::tokens::spacing::SM * 2, 0));
-    themeButton.setBounds(getWidth() - 80 - pad, 10, 80, 30);
+    prevPresetButton.setBounds(presetRow.removeFromLeft(40));
+    presetRow.removeFromLeft(Spacing::sm);
+    presetSelector.setBounds(presetRow.removeFromLeft(300));
+    presetRow.removeFromLeft(Spacing::sm);
+    nextPresetButton.setBounds(presetRow.removeFromLeft(40));
+    presetRow.removeFromLeft(Spacing::lg);
     
-    // Sequencer section (100px)
-    auto seqArea = bounds.removeFromTop(100).reduced(pad, ui::tokens::spacing::SM);
+    copyButton.setBounds(presetRow.removeFromLeft(60));
+    presetRow.removeFromLeft(Spacing::sm);
+    pasteButton.setBounds(presetRow.removeFromLeft(60));
+    presetRow.removeFromLeft(Spacing::sm);
+    clearButton.setBounds(presetRow.removeFromLeft(60));
     
-    // Transport row
+    // Theme button (top right)
+    themeButton.setBounds(getWidth() - 80 - Spacing::md, topBarArea.getY() + 10, 80, 30);
+    
+    // Transport and sequencer (100px)
+    auto seqArea = bounds.removeFromTop(100).reduced(Spacing::md, Spacing::sm);
+    
     auto transportRow = seqArea.removeFromTop(40);
     playButton.setBounds(transportRow.removeFromLeft(50));
-    transportRow.removeFromLeft(ui::tokens::spacing::SM);
+    transportRow.removeFromLeft(Spacing::sm);
     stopButton.setBounds(transportRow.removeFromLeft(50));
-    transportRow.removeFromLeft(ui::tokens::spacing::LG);
+    transportRow.removeFromLeft(Spacing::lg);
+    
     bpmLabel.setBounds(transportRow.removeFromLeft(40));
-    transportRow.removeFromLeft(ui::tokens::spacing::SM);
+    transportRow.removeFromLeft(Spacing::sm);
     bpmSlider.setBounds(transportRow.removeFromLeft(200));
     
-    // MIDI drag (right side)
-    midiDragSource.setBounds(getWidth() - 130 - pad, 60 + 50 + 10, 120, 35);
+    // MIDI drag source (right side of transport)
+    midiDragSource.setBounds(getWidth() - 130 - Spacing::md, 
+                            topBarArea.getBottom() + 60, 120, 35);
     
-    // Step grid row
-    seqArea.removeFromTop(ui::tokens::spacing::SM);
-    auto stepRow = seqArea.removeFromTop(40);
+    // Step grid
+    seqArea.removeFromTop(Spacing::sm);
+    auto stepRow = seqArea;
     voiceSelector.setBounds(stepRow.removeFromLeft(100));
-    stepRow.removeFromLeft(pad);
+    stepRow.removeFromLeft(Spacing::md);
     
-    // 16 step buttons
     int stepWidth = (stepRow.getWidth() - 15 * 4) / 16;
     for (int i = 0; i < 16; ++i)
     {
@@ -347,71 +354,78 @@ void CR717Editor::resized()
     // Footer (30px)
     auto footerArea = bounds.removeFromBottom(30);
     
-    // Main content area - Voice grid
-    bounds.reduce(pad, pad);
+    // Main content: Voice grid + Master section
+    bounds.reduce(Spacing::md, Spacing::md);
     
-    // Master controls (right side, 120px wide)
+    // Master section (right side, 120px)
     auto masterArea = bounds.removeFromRight(120);
-    masterArea.removeFromTop(pad);
     masterLevelLabel.setBounds(masterArea.removeFromTop(25));
-    masterArea.removeFromTop(ui::tokens::spacing::SM);
-    auto meterAndSlider = masterArea.removeFromTop(200);
-    masterMeter.setBounds(meterAndSlider.removeFromLeft(20));
-    meterAndSlider.removeFromLeft(ui::tokens::spacing::SM);
-    masterLevelSlider.setBounds(meterAndSlider);
+    masterArea.removeFromTop(Spacing::sm);
     
-    bounds.removeFromRight(pad);
+    auto meterSliderArea = masterArea.removeFromTop(200);
+    masterMeter.setBounds(meterSliderArea.removeFromLeft(20));
+    meterSliderArea.removeFromLeft(Spacing::sm);
+    masterLevelSlider.setBounds(meterSliderArea);
     
-    // Voice grid (4x3)
-    int voiceWidth = (bounds.getWidth() - 3 * pad) / 4;
-    int voiceHeight = (bounds.getHeight() - 2 * pad) / 3;
+    bounds.removeFromRight(Spacing::md);
+    
+    // Voice grid: 4 columns × 3 rows = 12 voices
+    const int cols = 4;
+    const int rows = 3;
+    const int voiceWidth = (bounds.getWidth() - (cols - 1) * Spacing::md) / cols;
+    const int voiceHeight = (bounds.getHeight() - (rows - 1) * Spacing::md) / rows;
     
     auto layoutVoice = [&](VoiceControls& vc, int col, int row) {
-        int x = bounds.getX() + col * (voiceWidth + pad);
-        int y = bounds.getY() + row * (voiceHeight + pad);
+        int x = bounds.getX() + col * (voiceWidth + Spacing::md);
+        int y = bounds.getY() + row * (voiceHeight + Spacing::md);
+        auto voiceArea = juce::Rectangle<int>(x, y, voiceWidth, voiceHeight);
         
-        vc.nameLabel.setBounds(x + 10, y + 10, voiceWidth - 20, 25);
-        vc.meter.setBounds(x + 5, y + 45, 10, voiceHeight - 60);
+        // Voice name label (top)
+        vc.nameLabel.setBounds(voiceArea.removeFromTop(30).reduced(Spacing::sm, Spacing::xs));
         
-        int knobY = y + 45;
-        int knobSize = 50;
-        int knobSpacing = (voiceWidth - 20 - knobSize * 4) / 3;
-        int knobX = x + 20;
+        // Meter (left side)
+        auto meterArea = voiceArea.removeFromLeft(15);
+        vc.meter.setBounds(meterArea.reduced(2, Spacing::sm));
         
-        if (vc.levelAttachment) vc.levelSlider.setBounds(knobX, knobY, knobSize, knobSize + 20);
-        knobX += knobSize + knobSpacing;
-        if (vc.tuneAttachment) vc.tuneSlider.setBounds(knobX, knobY, knobSize, knobSize + 20);
-        knobX += knobSize + knobSpacing;
-        if (vc.decayAttachment) vc.decaySlider.setBounds(knobX, knobY, knobSize, knobSize + 20);
-        knobX += knobSize + knobSpacing;
-        if (vc.toneAttachment) vc.toneSlider.setBounds(knobX, knobY, knobSize, knobSize + 20);
+        voiceArea.removeFromLeft(Spacing::xs);
+        
+        // Knobs in a row
+        voiceArea.reduce(Spacing::sm, Spacing::xs);
+        const int knobSize = 50;
+        const int knobSpacing = (voiceArea.getWidth() - knobSize * 4) / 3;
+        
+        auto knobRow = voiceArea.removeFromTop(knobSize + 20);
+        
+        if (vc.levelAttachment) {
+            vc.levelSlider.setBounds(knobRow.removeFromLeft(knobSize).withHeight(knobSize + 20));
+            knobRow.removeFromLeft(knobSpacing);
+        }
+        if (vc.tuneAttachment) {
+            vc.tuneSlider.setBounds(knobRow.removeFromLeft(knobSize).withHeight(knobSize + 20));
+            knobRow.removeFromLeft(knobSpacing);
+        }
+        if (vc.decayAttachment) {
+            vc.decaySlider.setBounds(knobRow.removeFromLeft(knobSize).withHeight(knobSize + 20));
+            knobRow.removeFromLeft(knobSpacing);
+        }
+        if (vc.toneAttachment) {
+            vc.toneSlider.setBounds(knobRow.removeFromLeft(knobSize).withHeight(knobSize + 20));
+        }
     };
     
-    // Layout all 12 voices in 4x3 grid
+    // Row 0: BD, SD, LT, MT
     layoutVoice(bdControls, 0, 0);
     layoutVoice(sdControls, 1, 0);
     layoutVoice(ltControls, 2, 0);
     layoutVoice(mtControls, 3, 0);
     
+    // Row 1: HT, RS, CP, CH
     layoutVoice(htControls, 0, 1);
     layoutVoice(rsControls, 1, 1);
     layoutVoice(cpControls, 2, 1);
     layoutVoice(chControls, 3, 1);
     
-    layoutVoice(ohControls, 0, 2);
-    layoutVoice(cyControls, 1, 2);
-    layoutVoice(rdControls, 2, 2);
-    layoutVoice(cbControls, 3, 2);
-    layoutVoice(bdControls, 0, 0);
-    layoutVoice(sdControls, 1, 0);
-    layoutVoice(ltControls, 2, 0);
-    layoutVoice(mtControls, 3, 0);
-    
-    layoutVoice(htControls, 0, 1);
-    layoutVoice(rsControls, 1, 1);
-    layoutVoice(cpControls, 2, 1);
-    layoutVoice(chControls, 3, 1);
-    
+    // Row 2: OH, CY, RD, CB
     layoutVoice(ohControls, 0, 2);
     layoutVoice(cyControls, 1, 2);
     layoutVoice(rdControls, 2, 2);

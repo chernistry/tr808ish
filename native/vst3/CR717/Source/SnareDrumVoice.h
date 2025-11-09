@@ -46,20 +46,22 @@ public:
             float currentTone = tone.getNextValue();
             float currentTune = tune.getNextValue() + fineTune.getNextValue();
 
-            // Body tone (180Hz)
-            float freq = (180.0f + currentTune * 20.0f) / static_cast<float>(sampleRate);
-            float body = std::sin(phase * juce::MathConstants<float>::twoPi) * env * 0.5f;
+            // Body tone (200Hz base, tunable)
+            float freq = (200.0f + currentTune * 30.0f) / static_cast<float>(sampleRate);
+            float body = std::sin(phase * juce::MathConstants<float>::twoPi) * env * 0.3f;
             phase += freq;
             if (phase >= 1.0f) phase -= 1.0f;
 
-            // Noise component
+            // Noise component (dominant for snare character)
             float noise = (random.nextFloat() * 2.0f - 1.0f) * noiseEnv;
             noise = filter.processSingleSampleRaw(noise);
 
-            float sample = (body + noise * currentTone) * currentLevel;
+            // Mix: more noise for snare character, tone controls the balance
+            float noiseMix = 0.7f + currentTone * 0.3f;  // 70-100% noise
+            float sample = (body * (1.0f - noiseMix) + noise * noiseMix) * currentLevel;
 
-            env *= 0.996f - (currentDecay * 0.003f);
-            noiseEnv *= 0.993f - (currentDecay * 0.003f);
+            env *= 0.995f - (currentDecay * 0.004f);
+            noiseEnv *= 0.992f - (currentDecay * 0.004f);
 
             applyPan(buffer, startSample + i, numSamples, sample);
         }

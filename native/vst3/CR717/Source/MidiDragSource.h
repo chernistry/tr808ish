@@ -2,73 +2,47 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_basics/juce_audio_basics.h>
+#include "DesignTokens.h"
 
+/**
+ * Component for dragging MIDI patterns out of the plugin to the DAW.
+ * Supports OS-level drag-and-drop with fallback to Save/Reveal.
+ */
 class MidiDragSource : public juce::Component
 {
 public:
-    MidiDragSource()
-    {
-        setSize(120, 30);
-    }
+    MidiDragSource();
+    ~MidiDragSource() override;
     
-    void setMidiFile(const juce::MidiFile& file)
-    {
-        midiFile = file;
-    }
+    void setMidiFile(const juce::MidiFile& file);
+    const juce::MidiFile& getMidiFile() const { return midiFile; }
     
-    void paint(juce::Graphics& g) override
-    {
-        g.fillAll(juce::Colour(0xff3a3a3a));
-        g.setColour(juce::Colour(0xffff6b35));
-        g.drawRect(getLocalBounds(), 2);
-        
-        g.setFont(12.0f);
-        g.drawText("⬇ Drag MIDI", getLocalBounds(), juce::Justification::centred);
-    }
+    void paint(juce::Graphics& g) override;
+    void resized() override;
     
-    void mouseDown(const juce::MouseEvent&) override
-    {
-        dragStartPos = getMouseXYRelative();
-    }
-    
-    void mouseDrag(const juce::MouseEvent& e) override
-    {
-        if (!isDragging && e.getDistanceFromDragStart() > 5)
-        {
-            isDragging = true;
-            
-            // Create temporary MIDI file with timestamp
-            auto tempDir = juce::File::getSpecialLocation(juce::File::tempDirectory);
-            auto timestamp = juce::Time::getCurrentTime().toMilliseconds();
-            tempFile = tempDir.getChildFile("TR808_Pattern_" + juce::String(timestamp) + ".mid");
-            
-            // Write MIDI file
-            juce::FileOutputStream stream(tempFile);
-            if (stream.openedOk())
-            {
-                midiFile.writeTo(stream);
-                stream.flush();
-            }
-            
-            // Perform external drag & drop
-            juce::StringArray files;
-            files.add(tempFile.getFullPathName());
-            
-            // This is the key: use performExternalDragDropOfFiles for OS-level drag
-            juce::DragAndDropContainer::performExternalDragDropOfFiles(files, false, this, nullptr);
-        }
-    }
-    
-    void mouseUp(const juce::MouseEvent&) override
-    {
-        isDragging = false;
-    }
+    void mouseDown(const juce::MouseEvent& e) override;
+    void mouseDrag(const juce::MouseEvent& e) override;
+    void mouseUp(const juce::MouseEvent& e) override;
+    void mouseEnter(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
     
 private:
+    void performDragAndDrop();
+    void saveMidiFile();
+    void revealMidiFile();
+    void cleanupTempFiles();
+    
     juce::MidiFile midiFile;
     juce::File tempFile;
+    juce::File lastSavedFile;
     juce::Point<int> dragStartPos;
     bool isDragging = false;
+    bool isHovering = false;
+    
+    // Fallback buttons
+    juce::TextButton saveButton;
+    juce::TextButton revealButton;
+    bool showFallbackButtons = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDragSource)
 };

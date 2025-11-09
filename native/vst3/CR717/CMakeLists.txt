@@ -71,6 +71,9 @@ target_sources(CR717 PRIVATE
     Source/PatternRandomizer.h
     Source/Sequencer.h
     Source/MidiDragSource.h
+    Source/MidiDragSource.cpp
+    Source/TopBar.h
+    Source/TopBar.cpp
 )
 
 target_compile_definitions(CR717 PUBLIC
