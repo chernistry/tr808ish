@@ -1,384 +1,302 @@
-# UI Best-Practices Guide — tr808-synth (2025)
+# UI Best-Practices Guide — **VST3-плагин** (2025, фокус на JUCE/VSTGUI)
 
 ## 1) TL;DR
 
-* Dark theme by default; declare `color-scheme: dark` and respect `prefers-color-scheme` and `prefers-reduced-motion`. ([MDN Web Docs][1])
-* Grid-first layout. Fixed 16 columns for steps. Use CSS Grid; align labels and cells with `subgrid` when available, fall back to a regular grid. ([MDN Web Docs][2])
-* Modern CSS stack: container queries, `@layer`, `:has()`, nesting. Lower specificity and avoid viewport-only breakpoints. ([MDN Web Docs][3])
-* AV sync from the audio clock. Compute visual position from `AudioContext.getOutputTimestamp()` and render via `requestAnimationFrame`. ([MDN Web Docs][4])
-* Animate only `transform` and `opacity`; batch DOM writes; verify in DevTools Performance. ([MDN Web Docs][5])
-* Accessibility AA: keyboardable grid pattern; visible focus; pointer targets ≥24×24 CSS px. ([W3C][6])
-* Desktop-first with tablet optimization via **container queries** rather than viewport media queries. ([MDN Web Docs][3])
-* Use CSS custom properties for design tokens; keep cascade predictable with `@layer`. ([MDN Web Docs][7])
-* Detect input modality: handle `hover`/`pointer` media features for touch. ([MDN Web Docs][8])
-* Color contrast meets WCAG AA (4.5:1 normal, 3:1 large). ([W3C][9])
+* Поддерживайте **ресайз и HiDPI** через `IPlugView` + `IPlugFrame::resizeView()`/`canResize()` и `IPlugViewContentScaleSupport` для Windows Per-Monitor DPI v2. Не меняйте окна хоста напрямую. ([steinbergmedia.github.io][1])
+* Рендер — **без OpenGL на macOS**. OpenGL официально **deprecated** с macOS 10.14; избегайте `juce_opengl` на релизах для Mac. ([Apple Developer][2])
+* Минимизируйте нагрузку на **message thread**: throttle repaints (≈20–30 Гц для бегунков/метров), рисуйте только изменившиеся области, используйте `setBufferedToImage(true)` для статичных блоков. ([JUCE][3])
+* Параметры ↔ UI через **APVTS-attachments** (Slider/Button/ComboBox). Это гарантирует корректную автомацию и потокобезопасную синхронизацию. ([JUCE][4])
+* **Ресайз-UX**: уголок/меню масштабирования в самом редакторе + сохранение размера в состоянии плагина, но с учётом обратной совместимости пресетов/сессий. ([iPlug2 Forum][5])
+* **Доступность**: JUCE AccessibilityHandler для названий и действий контролов; как минимум — клавиатурный фокус и подсказки. ([JUCE Documentation][6])
+* **Подпись/нотаризация macOS**: Developer ID App + Installer, **Hardened Runtime**, notarize **PKG/DMG/ZIP** (не `.vst3` напрямую). Автоматизируйте в CI. ([Apple Developer][7])
+* Инструменты проверки: **pluginval** (кросс-хост), **auval** (AU), тесты в основных DAW.
+* Новое/важное к 2025: VST3 SDK под **MIT-лицензией**; VSTGUI обновлялся в составе SDK; интерфейсы VST3 для маппинга/контента развиваются. Планируйте миграции с VST2. ([Steinberg Forums][8])
+* SLO: **UI-кадры ≤16.6 мс**, repaints ≤30 Гц для meters, нулевой UB при DPI/ресайзе, *zero* host-window poking.
 
 ---
 
-## 2) Landscape — What’s new in 2025
+## 2) Ландшафт 2025
 
-* **Container queries** and style queries are stable in modern engines, enabling component-scoped responsiveness. Prefer `container-type: inline-size` and `@container` over viewport queries. ([MDN Web Docs][3])
-* **`@layer`** is widely supported. Layer tokens/base/components/utilities to control cascade deterministically. ([MDN Web Docs][10])
-* **`:has()`** enables parent-state styling (e.g., highlight a row if any step is active). Use selectively. ([MDN Web Docs][11])
-* **CSS nesting** now broadly supported; SCSS for nesting alone is unnecessary. ([MDN Web Docs][12])
-* **Subgrid** allows precise column alignment across rows; keep a fallback for older browsers. ([MDN Web Docs][2])
-* **Web Audio timing** clarified: `getOutputTimestamp()` exposes audio and performance clocks for tight AV sync. ([MDN Web Docs][4])
-* **WCAG 2.2** adds Target Size (Minimum) 24×24 px; adopt for all interactive controls. ([W3C][13])
-
----
-
-## 3) UI Architecture Patterns (TypeScript/Vanilla JS + Web Audio)
-
-### Pattern A — Vanilla TS Modules + CSS Tokens (MVP)
-
-**When**: ≤20 components; performance-sensitive; zero framework overhead.
-**Steps**
-
-1. Modules: `SequencerGrid`, `Transport`, `InstrumentStrip`.
-2. Tokens via CSS custom properties; organize with `@layer`.
-3. Component responsiveness with container queries.
-4. rAF loop for visual highlighting tied to audio clock. ([MDN Web Docs][7])
-   **Pros**: tiny bundle, direct DOM control. **Cons**: manual state management.
-   **Later**: storybook-like catalog; theme switcher.
-
-### Pattern B — Modular Components + Subgrid (Scale-up)
-
-**When**: many panels/states; shared alignment across rows.
-**How**: define 16-column subgrid for step cells; keep fallback grid for non-subgrid browsers. ([MDN Web Docs][2])
-**Migration**: incrementally replace row layouts with subgrid; keep tokens and container queries unchanged.
+* **VST3 SDK → MIT**: упрощает юридию и встраивание шаблонов CMake. ([Steinberg Forums][8])
+* **VSTGUI** идёт в составе SDK, регулярные фиксы (напр. 4.14.3 в 3.7.14). ([Steinberg Forums][9])
+* **HiDPI (Windows Per-Monitor v2)**: корректный DPI-скейлинг обязателен; ориентируйтесь на per-monitor DPI. ([Microsoft Learn][10])
+* **macOS**: обязателен **Hardened Runtime** + notarization; OpenGL — deprecated → избегайте GL в UI. ([Apple Developer][11])
+* **JUCE**: есть Accessibility API; APVTS-attachments для безопасной связки UI↔параметров. ([JUCE Documentation][6])
+* Альтернатива веб-UI: **vstwebview** (встроенный WebView2/WebKit); оценивайте риски размера/совместимости. ([GitHub][12])
 
 ---
 
-## 4) Priority 1 — Design System / Visual Design
+## 3) UI-архитектурные паттерны
 
-**Why**: reduce cognitive load; match pro audio UI expectations.
-**Scope**: colors, type, spacing, radii, states; out-of-scope: audio DSP.
-**Decisions**
+### A. **JUCE Minimal Editor** (MVP)
 
-* Dark default; declare `color-scheme: dark` and `<meta name="color-scheme" content="dark light">`. Honor user theme preferences. ([MDN Web Docs][1])
-* HSL tokens for easy theming; minimum text contrast per WCAG AA. ([W3C][9])
+**Когда**: 1 окно, ≤30 контролов, без сложной графики.
+**Шаги**:
 
-**Tokens**
+1. `AudioProcessorEditor` фиксирует min/max size, `setResizable(true, true)`, `setResizeLimits`.
+2. Параметры через `AudioProcessorValueTreeState` + Slider/Button-Attachments.
+3. Throttle UI обновлений (Timer 20–30 Гц).
+4. `setBufferedToImage(true)` для статических секций, частичные `repaint(Rectangle)`.
+   **Плюсы**: минимальный код, хорошая совместимость. **Минусы**: CPU-рендер, осторожно с плотными перерисовками.
+   **Позже**: кастомный LookAndFeel, темизация.
 
-```css
-@layer tokens {
-  :root {
-    /* Color */
-    --bg-0: hsl(0 0% 10%);    /* app base */
-    --bg-1: hsl(0 0% 15%);    /* panels */
-    --bg-2: hsl(0 0% 20%);
-    --text-0: hsl(0 0% 98%);
-    --text-1: hsl(0 0% 65%);
-    --accent: hsl(18 100% 60%);   /* 808 orange */
-    --accent-weak: hsl(18 100% 70%);
-    --ok: hsl(120 100% 45%);
-    --border: hsl(0 0% 28%);
+### B. **JUCE Scalable/HiDPI** (Scale-up)
 
-    /* Type & spacing */
-    --ff: system-ui, sans-serif;
-    --fs-xs: 11px; --fs-sm: 12px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px;
-    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
-    --radius-1: 2px; --radius-2: 4px; --radius-3: 8px;
+**Когда**: много панелей/метров/редакторов, ресайз и DPI-миграции между мониторами.
+**Шаги**:
 
-    /* Controls */
-    --step-size: 44px; /* ≥ WCAG 2.2 target size */
+1. Реализуйте **host-driven** и **client-driven** ресайз (см. `IPlugView`/`IPlugFrame`).
+2. Реагируйте на `IPlugViewContentScaleSupport` (Windows) и логические пиксели на macOS.
+3. Сохраняйте размер/скейл безопасно для backward-compat.
+   **Миграция**: из A → добавляйте DPI-слои и централизованный Layout-менеджер. ([steinbergmedia.github.io][1])
+
+---
+
+## 4) Priority 1 — **Параметры и автомация (UI↔DSP)**
+
+**Зачем**: детерминированность, корректная автомация в DAW, без гонок потоков.
+**Скоуп**: APVTS, Attachments, модель состояний; **вне**: DSP-сглаживание.
+**Решения**:
+
+* Только **APVTS** + стандартные attachments (или свои для кастом-виджетов).
+* Все параметры с постоянными **ID**; думайте о VST2→VST3 совместимости.
+* UI меняет параметры **на message-потоке**, DSP читает атомарно/сглаженно.
+  **Имплементация (пример JUCE)**:
+
+```cpp
+// Processor.h
+AudioProcessorValueTreeState apvts {*this, nullptr, "PARAMS",
+  { std::make_unique<AudioParameterFloat>("gain","Gain",NormalisableRange<float>(0.f,1.f),0.5f) }};
+
+// Editor.h
+juce::Slider gain;
+std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAtt;
+
+gainAtt = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processor.apvts, "gain", gain);
+```
+
+**Границы/SLO**: событие UI→параметр ≤1 кадр UI; автомация без пропусков.
+**Сбой→восстановление**: рассинхрон/дребезг → проверить IDs/attachments; миграция пресетов VST2→VST3 → см. предупреждения JUCE по совместимым ID. ([JUCE][4])
+
+---
+
+## 5) Priority 1 — **HiDPI/Resizing/Кросс-хост**
+
+**Зачем**: читаемость, предсказуемое поведение в Live/Logic/FL/REAPER.
+**Скоуп**: DPI-скейл, ресайз из хоста и клиента.
+**Решения**:
+
+* Реализуйте **оба** пути: host-resize (`canResize()`/`onSize()`) и plugin-inititated (`IPlugFrame::resizeView`).
+* На Windows учитывайте `IPlugViewContentScaleSupport` (масштаб логических пикселей).
+* Не трогайте хост-окно напрямую; только через API.
+  **Код-скелет (VST3)**:
+
+```cpp
+tresult PLUGIN_API MyView::canResize() { return kResultTrue; }
+tresult PLUGIN_API MyView::onSize(ViewRect* newSize) { /* layout(); */ return kResultOk; }
+// plugin-initiated:
+plugFrame->resizeView(this, &newRect);
+```
+
+**Границы/SLO**: ресайз без мерцаний; корректный размер на мониторах с разным DPI.
+**Сбой→восстановление**: двойной размер при переносе экрана → верифицировать логику логических пикселей и повторные `onSize()`. ([steinbergmedia.github.io][1])
+
+---
+
+## 6) Priority 2 — **Производительность UI**
+
+**Зачем**: минимум CPU в DAW; нет «заиканий» аудио из-за UI.
+**Решения**:
+
+* Repaint-throttle 20–30 Гц для индикаторов; `Timer` вместо постоянного `repaint()`.
+* Рисуйте **только изменившиеся регионы**; избегайте `paintOverChildren`.
+* Кэшируйте статичный комплексный рендер через `setBufferedToImage(true)`.
+* Избегайте OpenGL в UI на macOS; JUCE рендерит на CPU.
+  **SLO**: средний кадр UI ≤16.6 мс, Long-taskов UI нет.
+  **Сбой→восстановление**: «жрёт CPU» → снизить частоту repaints, применить кэш, дробить layout. ([JUCE][3])
+
+---
+
+## 7) Priority 3 — **Доступность и ввод**
+
+**Зачем**: управляемость клавиатурой, screen-reader-подсказки, проф-стандарты.
+**Решения**:
+
+* JUCE Accessibility: имена/роли/действия для контролов; видимые фокусы.
+* Горячие клавиши для навигации/триггеров; фокус-менеджмент.
+  **Сбой→восстановление**: недоступные элементы → добавить `AccessibilityHandler`/имена/фокус. ([JUCE Documentation][6])
+
+---
+
+## 8) Дизайн-система (нативный скин)
+
+Пример **токенов**:
+
+```cpp
+namespace Theme {
+  constexpr int kPad  = 8, kGap = 6, kRadius = 6;
+  const juce::Colour Bg0{0xff1a1a1a}, Bg1{0xff262626}, Text0{0xfff2f2f2};
+  const juce::Colour Accent{0xffFF6B35}; // 808-orange
+}
+```
+
+Пример LookAndFeel-правил: кастомные слайды/кнопки с единым paddings/радиусами, размер **минимум 24×24 px** для кликабельных целей. ([JUCE][13])
+
+---
+
+## 9) Тестирование
+
+* **Статика**: clang-tidy, ASAN/UBSAN.
+* **Хост-совместимость**: Ableton, Cubase, REAPER, FL, Logic (AU).
+* **Валидация**: **pluginval**; **auval** для AU.
+* **Сценарии**: автомация параметров, ресайз на разных DPI, перенос между мониторами, сохранение/загрузка пресетов, стресс-repaint.
+
+---
+
+## 10) Наблюдаемость/Операции
+
+* Без фанатизма: файл-лог уровня DEBUG с выключением в релизе, счётчики repaints/длительность кадра (переменная диагностики).
+* Сбоепад: сбор **crash-репортов** вне DAW-процесса, уважайте приватность.
+
+---
+
+## 11) Безопасность/Дистрибуция
+
+* **macOS**: подпись `Developer ID Application` + `Developer ID Installer`, включить **Hardened Runtime**, notarize **установщик** (PKG/DMG/ZIP) и «степлить» тикет. Автоматизировать notarytool в CI. ([Apple Developer][7])
+* Не трогайте сетевые разрешения без необходимости; не внедряйте авто-обновлялки внутри плагина.
+
+---
+
+## 12) Производительность и бюджеты
+
+* **UI**: 60 fps цель; meters/анимации 20–30 Гц; repaint-области минимальны.
+* **CPU**: UI ≤2–3% одного ядра на типовом проекте; никаких блокировок аудио-потока из-за UI.
+* **Память**: кэш-буферы под `setBufferedToImage` для больших статичных секций.
+
+---
+
+## 13) CI/CD
+
+* Матрица: **Win x64**, **macOS universal (arm64+x64)**.
+* Шаги: build → unit-tests → pluginval → codesign (App) → package (PKG/ZIP) → notarize → staple → upload. ([Melatonin][14])
+
+---
+
+## 14) Качество кода
+
+* C++20, clang-tidy профили для JUCE, форматирование clang-format.
+* Правило: **UI только на message-потоке**, DSP без UI-вызовов.
+* Компоненты без тяжёлой логики в `paint()`, никаких аллокаций внутри `paint()`.
+
+---
+
+## 15) Чёрный список анти-паттернов
+
+* Изменение хост-окна напрямую вместо `IPlugFrame::resizeView()` → несовместимость. ([KVR Audio][15])
+* OpenGL-оверлей на macOS → нестабильность и потенциальные проблемы с будущими версиями macOS. ([Apple Developer][2])
+* Тотальный `repaint()` на 60 Гц → лишний CPU. Дробите и кэшируйте. ([JUCE][16])
+* Игнор DPI/ContentScale на Windows → «двойной» размер при переносе окна. ([steinbergmedia.github.io][17])
+
+---
+
+## 16) Источники (ключевые)
+
+* **VST3 SDK → MIT; CMake templates**. ([Steinberg Forums][8])
+* **VSTGUI обновления в SDK**. ([Steinberg Forums][9])
+* **IPlugView/IPlugFrame (ресайз)**; **ContentScaleSupport**. ([steinbergmedia.github.io][1])
+* **Windows Per-Monitor v2 DPI**. ([Microsoft Learn][10])
+* **OpenGL deprecated в macOS**. ([Apple Developer][2])
+* **JUCE Accessibility**; **APVTS Attachments**. ([JUCE Documentation][6])
+* **Notarization + Hardened Runtime**; **пакет для notarize**. ([Apple Developer][7])
+* **pluginval**.
+
+---
+
+## 17) Верификация
+
+* **Авто**: pluginval, regression-скрипт (ресайз, DPI-перенос, автомация), auval для AU.
+* **Ручные чек-листы**:
+
+  1. Ресайз из хоста и из плагина без артефактов.
+  2. DPI-перенос между мониторами без «двойного» масштаба.
+  3. Автомация параметров и откат пресетов без drift.
+  4. Throttle repaints ≤30 Гц, кадры ≤16.6 мс.
+* **Уверенность**: совместимость/ресайз — **High**; notarize/подпись — **High**; перф-гайд — **Medium** (зависит от дизайна).
+
+---
+
+### Приложение — скелеты кода
+
+**JUCE: базовый editor с ресайзом и кэшем**
+
+```cpp
+class Editor : public juce::AudioProcessorEditor, private juce::Timer {
+public:
+  Editor (Processor& p): AudioProcessorEditor (&p), proc (p) {
+    setResizable (true, true);
+    setResizeLimits (400, 260, 1600, 1040);
+    addAndMakeVisible (gain);
+    gainAtt = std::make_unique<APVTS::SliderAttachment>(proc.apvts, "gain", gain);
+    staticPanel.setBufferedToImage (true); // кэш статичной панели
+    startTimerHz (30); // throttle визуализаций
+    setSize (520, 320);
   }
-}
-@layer base {
-  :root { color-scheme: dark; background: var(--bg-0); color: var(--text-0); }
-  body  { font-family: var(--ff); }
-}
-```
-
-**Guardrails & SLOs**: Text contrast ≥ AA; interactive targets ≥24×24 CSS px. ([W3C][9])
-**Failure modes → Recovery**: token drift → review for hardcoded values; low contrast → adjust HSL lightness until AA.
-
----
-
-## 5) Priority 1 — UX / Interaction
-
-**Why**: fast pattern entry; minimal friction.
-**Decisions**
-
-* Click toggles step; double-click sets accent; current step highlights.
-* Keyboard: arrows move focus in grid; `Enter`/Space toggle; Space on transport plays/stops; `1–5` selects instrument; announce state via `aria-live="polite"`. ([W3C][6])
-  **Implementation**
-
-```html
-<section class="seq" role="grid" aria-label="808 sequencer">
-  <div class="row" role="row" aria-label="Bass Drum">
-    <span class="label">BD</span>
-    <div class="cells">
-      <button class="step" role="gridcell" aria-pressed="false" data-step="0"></button>
-      <!-- ... 16 steps -->
-    </div>
-  </div>
-</section>
-```
-
-**Guardrails & SLOs**: ≤150 ms state transitions; AV drift ≤1 audio frame for highlight.
-**Failure modes**: desync → compute visual index from audio clock; sluggish highlight → move animation to `transform/opacity`. ([MDN Web Docs][4])
-
----
-
-## 6) Priority 2 — Accessibility
-
-**Why**: inclusive creation; faster power-user flows.
-**Decisions**
-
-* ARIA Grid semantics (`role="grid" → row → gridcell`) plus explicit keyboard navigation. ([W3C][6])
-* Visible `:focus-visible` rings; `aria-live="polite"` for BPM/transport changes. ([MDN Web Docs][14])
-* Pointer targets ≥24×24; respect motion and color-scheme preferences. ([W3C][13])
-  **Guardrails**: axe run passes; keyboard-only navigation works.
-
----
-
-## 7) Priority 3 — Responsive Design
-
-**Decisions**
-
-* Desktop-first; tablet via container queries on panels.
-* Keep 16 columns fixed; wrap instrument rows when space is tight.
-  **Example**
-
-```css
-.seq { container-type: inline-size; }
-@container (width < 920px) {
-  .cells { gap: var(--space-1); }
-  .toolbar { grid-template-columns: 1fr 1fr; }
-}
-```
-
-([MDN Web Docs][3])
-
----
-
-## 8) Component Patterns
-
-### Step button
-
-```css
-@layer components {
-  .step {
-    inline-size: var(--step-size);
-    block-size: var(--step-size);
-    border-radius: var(--radius-2);
-    border: 1px solid var(--border);
-    background: var(--bg-2);
-    transition: transform .12s, opacity .12s, background-color .12s;
+  void timerCallback() override { /* обновить лёгкие индикаторы; repaint нужных регионов */ }
+  void resized() override {
+    auto b = getLocalBounds().reduced (8);
+    gain.setBounds (b.removeFromTop (40));
+    staticPanel.setBounds (b);
   }
-  .step[aria-pressed="true"] { background: var(--accent); }
-  .step:focus-visible { outline: 2px solid var(--accent-weak); outline-offset: 2px; }
-  .row:has(.step[aria-pressed="true"]) {
-    outline: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  }
+private:
+  using APVTS = juce::AudioProcessorValueTreeState;
+  Processor& proc;
+  juce::Slider gain; juce::Component staticPanel;
+  std::unique_ptr<APVTS::SliderAttachment> gainAtt;
+};
+```
+
+**VST3: канонический ресайз (плагин инициирует)**
+
+```cpp
+// plugFrame предоставлен хостом при attach()
+ViewRect r {0, 0, newW, newH};
+if (plugFrame != nullptr)
+  plugFrame->resizeView (this, &r); // хост затем вызовет onSize()
+```
+
+([steinbergmedia.github.io][1])
+
+**JUCE Accessibility (идея)**
+
+```cpp
+// Для кастомного компонента можно вернуть AccessibilityHandler
+std::unique_ptr<juce::AccessibilityHandler> MyButton::createAccessibilityHandler() {
+  using AH = juce::AccessibilityHandler;
+  auto actions = juce::AccessibilityActions().addAction (juce::AccessibilityActionType::press, [this]{ triggerClick(); });
+  return std::make_unique<AH>(*this, juce::AccessibilityRole::button, actions, juce::AccessibilityText({ "Play" }, {}, {}));
 }
 ```
 
-Uses `:has()` for parent highlighting. ([MDN Web Docs][11])
-
-### Grid with subgrid (fallback included)
-
-```css
-.seq { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2); }
-.row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; }
-@supports not (grid-template-columns: subgrid) {
-  .row { grid-template-columns: auto repeat(16, var(--step-size)); }
-}
-```
-
-([MDN Web Docs][2])
+([JUCE Documentation][6])
 
 ---
 
-## 9) Audio-Visual Sync Pattern
+Если нужен вариант под **VSTGUI** или под **веб-UI (vstwebview)**, укажи целевую платформу/хосты — дам адаптированный набор правил и примеры.
 
-```ts
-// scheduler.ts
-export function startVisualSync(
-  ctx: AudioContext,
-  stepDurSec: number,
-  setActive: (i: number) => void
-) {
-  let rafId = 0;
-  const frame = () => {
-    const { contextTime } = ctx.getOutputTimestamp();
-    const pos = Math.floor((contextTime / stepDurSec) % 16);
-    setActive(pos);
-    rafId = requestAnimationFrame(frame);
-  };
-  rafId = requestAnimationFrame(frame);
-  return () => cancelAnimationFrame(rafId);
-}
-```
-
-Use `getOutputTimestamp()` for audio-clock truth and render with `requestAnimationFrame`. ([MDN Web Docs][4])
-
----
-
-## 10) Performance & UX Responsiveness
-
-* Animate only `transform`/`opacity`; avoid layout/paint churn during playback. ([MDN Web Docs][5])
-* Measure with User Timing and inspect Long Tasks (>50 ms). ([MDN Web Docs][15])
-* rAF cadence adapts to display refresh and throttles in background tabs; do not use timers for the playhead. ([MDN Web Docs][16])
-
----
-
-## 11) Code Quality Standards
-
-* CSS organization: `@layer tokens, base, components, utilities`; use nesting sparingly to keep specificity low. ([MDN Web Docs][10])
-* Design tokens with custom properties for all color, spacing, and type values. ([MDN Web Docs][7])
-* JS: module-scoped components; event delegation on grid; pure render helpers.
-* CI check: lint style tokens usage; forbid hardcoded spacing/color values.
-
----
-
-## 12) Input & Cross-Platform
-
-* Respect input capabilities: use `@media (hover: none)` and `@media (pointer: coarse)` to disable hover-only affordances and increase spacing. ([MDN Web Docs][8])
-* Declare `color-scheme` to integrate browser chrome with dark UI. ([MDN Web Docs][1])
-
----
-
-## 13) Reading List (with dates and gist)
-
-* MDN: **Container queries** (Baseline 2024–2025). Component-scoped responsive design. ([MDN Web Docs][3])
-* MDN: **`@layer`** (2023–2025). Deterministic cascade control. ([MDN Web Docs][10])
-* MDN: **`:has()`** (2023–2025). Parent-state styling. ([MDN Web Docs][11])
-* MDN: **CSS nesting** (2024–2025). Replace SCSS for nesting. ([MDN Web Docs][12])
-* MDN: **Subgrid** (2024–2025). Cross-row alignment. ([MDN Web Docs][2])
-* MDN: **Web Audio `getOutputTimestamp()`** (2025-05-23). AV sync. ([MDN Web Docs][4])
-* MDN: **Animation performance** (2025-08-19). Prefer transform/opacity. ([MDN Web Docs][5])
-* W3C: **WCAG 2.2** (2024-12-12). Target size and AA baseline. ([W3C][17])
-
----
-
-## 14) Decision Log (ADR style)
-
-* **ADR-001**: Container queries over viewport media queries, because components must respond to their containers, not the page. ([MDN Web Docs][3])
-* **ADR-002**: Visual playhead driven by audio clock (`getOutputTimestamp()` + rAF) over timer-based loops, to prevent drift and jitter. ([MDN Web Docs][4])
-* **ADR-003**: Animate `transform`/`opacity` only during playback to sustain 60 fps. ([MDN Web Docs][5])
-* **ADR-004**: Enforce ≥24×24 targets and visible focus to align with WCAG 2.2 AA. ([W3C][13])
-
----
-
-## 15) Anti-Patterns to Avoid (and what instead)
-
-* **Timer-driven playhead** (`setInterval`) → drifts vs audio. **Use** audio clock + rAF. ([MDN Web Docs][4])
-* **Animating layout properties** (`top/left/width/height`) → layout thrash. **Use** `transform/opacity`. ([MDN Web Docs][5])
-* **Viewport-only breakpoints** in component CSS → brittle layouts. **Use** container queries. ([MDN Web Docs][3])
-* **Hover-only cues** on touch. **Use** `hover`/`pointer` queries to adapt. ([MDN Web Docs][8])
-* **Hidden focus** for aesthetic reasons. **Keep** `:focus-visible` styles. ([MDN Web Docs][14])
-
----
-
-## 16) Evidence & Citations
-
-Key claims are backed by primary docs: MDN for platform features and performance; W3C WCAG for accessibility; WAI-ARIA APG for keyboardable grid semantics. See citations inline.
-
----
-
-## 17) Verification
-
-* **Accessibility**: run axe; manual keyboard-only pass; confirm targets ≥24×24; verify grid keyboard spec from APG. **Confidence**: High. ([W3C][6])
-* **Performance**: record during playback; check for Long Tasks; confirm animation properties are compositor-friendly. **Confidence**: High. ([MDN Web Docs][3])
-* **AV Sync**: log `(ctx.getOutputTimestamp().contextTime % stepDur)` vs UI index; drift > 1 audio frame is a bug. **Confidence**: High. ([MDN Web Docs][4])
-
----
-
-### Minimal Scaffold (ready to paste)
-
-**HTML**
-
-```html
-<header class="toolbar">
-  <button id="play" aria-pressed="false" aria-live="polite">Play</button>
-  <label>BPM <input id="bpm" type="range" min="60" max="240" value="120" aria-live="polite"></label>
-</header>
-
-<section class="seq" role="grid" aria-label="808 sequencer">
-  <div class="row" role="row" aria-label="Bass Drum">
-    <span class="label">BD</span>
-    <div class="cells">
-      <!-- 16 buttons -->
-      <button class="step" role="gridcell" aria-pressed="false" data-step="0"></button>
-      <!-- … -->
-    </div>
-  </div>
-  <!-- SD, CH, OH, CP -->
-</section>
-```
-
-**CSS**
-
-```css
-@layer tokens, base, components;
-
-@layer tokens { /* tokens from section 4 */ }
-@layer base {
-  .toolbar { display:flex; gap:var(--space-3); padding:var(--space-3); background:var(--bg-1); }
-  .seq { display:grid; grid-template-columns:auto 1fr; gap:var(--space-2); container-type:inline-size; }
-  .label { inline-size:3ch; color:var(--text-1); align-self:center; }
-  .cells { display:grid; grid-template-columns:repeat(16, var(--step-size)); gap:var(--space-2); }
-  .row  { display:grid; grid-template-columns: subgrid; grid-column: 1 / -1; }
-  @supports not (grid-template-columns: subgrid) {
-    .row { grid-template-columns:auto repeat(16, var(--step-size)); }
-  }
-}
-@layer components {
-  .step {
-    inline-size:var(--step-size); block-size:var(--step-size);
-    border-radius:var(--radius-2); border:1px solid var(--border); background:var(--bg-2);
-    transition:transform .12s, opacity .12s, background-color .12s;
-  }
-  .step[aria-pressed="true"] { background:var(--accent); }
-  .step:focus-visible { outline:2px solid var(--accent-weak); outline-offset:2px; }
-  .row:has(.step[aria-pressed="true"]) { outline:1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
-}
-@container (width < 920px) { .cells { gap:var(--space-1); } }
-@media (prefers-reduced-motion: reduce) { .step { transition:none; } }
-@media (hover: none), (pointer: coarse) { /* tone down hover-only effects */ }
-```
-
-**TS**
-
-```ts
-const seq = document.querySelector<HTMLElement>('.seq')!;
-seq.addEventListener('click', (e) => {
-  const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.step');
-  if (!btn) return;
-  const next = btn.getAttribute('aria-pressed') !== 'true';
-  btn.setAttribute('aria-pressed', String(next));
-});
-
-seq.addEventListener('keydown', (e: KeyboardEvent) => {
-  const active = document.activeElement as HTMLButtonElement;
-  if (!active?.classList.contains('step')) return;
-  const row = active.closest('.row')!;
-  const cells = Array.from(row.querySelectorAll<HTMLButtonElement>('.step'));
-  const i = cells.indexOf(active);
-  if (e.key === 'ArrowRight') (cells[i + 1] || cells[0]).focus();
-  if (e.key === 'ArrowLeft')  (cells[i - 1] || cells[cells.length - 1]).focus();
-  if (e.key === 'Enter' || e.key === ' ') { active.click(); e.preventDefault(); }
-});
-```
-
-This guide is ready to implement with today’s browser baselines.
-
-[1]: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/color-scheme "color-scheme - CSS - MDN Web Docs - Mozilla"
-[2]: https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/CSS_JavaScript_animation_performance "CSS and JavaScript animation performance - Performance | MDN"
-[3]: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries "CSS container queries - CSS | MDN"
-[4]: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/getOutputTimestamp "AudioContext: getOutputTimestamp() method - Web APIs | MDN"
-[5]: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Subgrid "Subgrid - CSS | MDN"
-[6]: https://www.w3.org/WAI/ARIA/apg/patterns/grid/ " Grid (Interactive Tabular Data and Layout Containers) Pattern | APG | WAI | W3C"
-[7]: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascading_variables/Using_CSS_custom_properties "Using CSS custom properties (variables) - MDN Web Docs"
-[8]: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/hover "hover - CSS | MDN"
-[9]: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html "Understanding Success Criterion 1.4.3: Contrast (Minimum)"
-[10]: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40layer "@layer - CSS | MDN"
-[11]: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/%3Ahas ":has() - CSS | MDN"
-[12]: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceLongTaskTiming "PerformanceLongTaskTiming - Web APIs | MDN"
-[13]: https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html "Understanding Success Criterion 2.5.8: Target Size (Minimum) | WAI | W3C"
-[14]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/grid_role "ARIA: grid role - ARIA | MDN"
-[15]: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting "CSS nesting - CSS | MDN"
-[16]: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Basic_animations "Basic animations - Canvas API - MDN Web Docs"
-[17]: https://www.w3.org/TR/WCAG22/ "Web Content Accessibility Guidelines (WCAG) 2.2"
+[1]: https://steinbergmedia.github.io/vst3_doc/base/classSteinberg_1_1IPlugView.html "Interface Technology Basics: IPlugView Class Reference"
+[2]: https://developer.apple.com/documentation/macos-release-notes/macos-mojave-10_14-release-notes "macOS Mojave 10.14 Release Notes"
+[3]: https://forum.juce.com/t/solved-better-repaint-debugging/50451 "[Solved] Better Repaint Debugging"
+[4]: https://forum.juce.com/t/several-accessibility-issues-on-windows/48145 "Several accessibility issues on Windows"
+[5]: https://iplug2.discourse.group/t/any-way-to-save-plugin-ui-resize-factor-as-a-parameter-yes-one-approach-here/797 "Any way to save plugin UI resize factor as a Parameter? Yes"
+[6]: https://docs.juce.com/master/classjuce_1_1AccessibilityHandler.html "juce::AccessibilityHandler Class Reference"
+[7]: https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution "Notarizing macOS software before distribution"
+[8]: https://forums.steinberg.net/t/vst-3-8-0-sdk-released/1011988 "VST 3.8.0 SDK Released"
+[9]: https://forums.steinberg.net/t/vst-3-7-14-sdk-released/996702 "VST 3.7.14 SDK Released"
+[10]: https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows "High DPI Desktop Application Development on Windows"
+[11]: https://developer.apple.com/documentation/xcode/configuring-the-hardened-runtime "Configuring the hardened runtime"
+[12]: https://github.com/rdaum/vstwebview "rdaum/vstwebview: Write user interfaces for VST3 plugins ..."
+[13]: https://forum.juce.com/t/scalling-issues-on-windows-machines/64315 "Scalling issues on Windows machines"
+[14]: https://melatonin.dev/blog/how-to-code-sign-and-notarize-macos-audio-plugins-in-ci/ "How to code sign and notarize macOS audio plugins in CI"
+[15]: https://www.kvraudio.com/forum/viewtopic.php?t=556571 "resize window with custom GUI (no VSTGUI) how to? ..."
+[16]: https://forum.juce.com/t/repaint-terrible-performance-why/59808 "Repaint() terrible performance why?"
+[17]: https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical%2BDocumentation/Change%2BHistory/3.6.6/IPlugViewContentScaleSupport.html "[3.6.6] PlugView Content Scaling - VST 3 Developer Portal"
