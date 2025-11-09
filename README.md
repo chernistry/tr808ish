@@ -27,14 +27,17 @@ All prompts used in this project are available in both locations - the SDDRush r
 ### VST3 Plugin
 - **Full-featured VST3 instrument** compatible with DAWs like Ableton Live, Logic Pro, Reaper
 - **12 synthesized drum voices** matching the web version
-- **Parameter automation support** for all voice parameters
-- **MIDI input** support for triggering sounds
+- **97 parameters** with full automation support (73 voice + 24 FX sends)
+- **36 factory presets** across 6 genres (UK Garage, DnB, Techno, House, Trap, Lo-Fi)
+- **Per-voice FX sends** to reverb and delay buses
+- **Master dynamics chain** (compressor, limiter, soft clipper)
+- **MIDI input** support (GM drum map compatible)
 - **Host sync** with tempo and playback state
-- **Factory presets** (8 pattern banks A-H with different genres)
-- **Individual voice controls** with custom knobs and faders
-- **Level meters** for visual feedback
-- **Professional dark theme** matching the web UI
+- **Resizable UI** (1100x720 - 1650x1080) with HiDPI support
+- **Accessibility** features (keyboard navigation, screen reader support)
+- **Professional dark theme** with custom knobs and faders
 - **Low-latency audio** processing with optimized DSP
+- **Follows VST3 UI Best Practices 2025** (APVTS, throttled repaints, no OpenGL)
 
 ## How to Use
 
@@ -81,49 +84,13 @@ cmake --build build --config Release
 - **Parameter Automation**: All parameters support DAW automation
 - **Individual Voice Controls**: Custom knobs for level, tune, decay, tone per voice
 
-## Tech Stack
+## Tech Stack, Architecture, and Performance
 
-### Web Application
-- **Frontend**: TypeScript
-- **Audio**: Web Audio API with look-ahead scheduler
-- **Build**: Vite 6
-- **Testing**: Vitest 4 + Playwright
-- **Linting**: ESLint + Prettier
+### Tech Stack
+**Web Application**: TypeScript frontend with Web Audio API, built with Vite 6, tested with Vitest 4 + Playwright, linted with ESLint + Prettier. **Native VST3 Plugin**: JUCE 7 framework with CMake build system, Steinberg VST3 SDK for audio, optimized C++ synthesis algorithms.
 
-### Native VST3 Plugin
-- **Framework**: JUCE 7
-- **Build**: CMake
-- **Audio**: Steinberg VST3 SDK
-- **UI**: JUCE native components with custom drawing
-- **DSP**: Optimized C++ synthesis algorithms
-
-## Architecture
-
-### Web Application
-- **State Management**: Centralized store with pub/sub pattern
-- **Audio Engine**: Look-ahead scheduler with precise timing (<2ms jitter)
-- **UI Components**: Modular, reusable components (sequencer grid, mixer, controls)
-- **Design System**: CSS variables for consistent theming and styling
-
-### VST3 Plugin
-- **Audio Processing**: Real-time safe DSP with block processing
-- **Parameter System**: APVTS for automation-compatible parameters
-- **MIDI Handling**: Full MIDI input/output support
-- **Host Integration**: Tempo sync, playback state, sample-accurate timing
-
-## Performance
-
-### Web Application
-- Bundle size: <10 KB (3.13 KB gzipped)
-- Timing accuracy: <2ms jitter at 120 BPM
-- Memory usage: <100 MB
-- No long tasks during playback
-
-### VST3 Plugin
-- Low-latency audio processing
-- Optimized for real-time performance
-- Sample-accurate timing
-- Efficient CPU usage
+### Architecture and Performance
+The web app features centralized state management, precise audio timing with <2ms jitter, modular UI components, and CSS-based design system. The VST3 plugin offers real-time safe DSP, APVTS parameter system for automation, full MIDI support, and sample-accurate host integration. Both platforms deliver efficient performance: the web app has <10 KB bundle size with <2ms timing accuracy, while the VST3 plugin provides low-latency processing with optimized CPU usage. The plugin requires CMake 3.22+ and JUCE to build, supporting cross-platform development via submodules.
 
 ## Building and Development
 

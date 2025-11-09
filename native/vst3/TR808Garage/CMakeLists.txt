@@ -53,6 +53,8 @@ target_sources(TR808Garage PRIVATE
     Source/MasterDynamics.h
     Source/Preset.h
     Source/PatternRandomizer.h
+    Source/Sequencer.h
+    Source/MidiDragSource.h
 )
 
 target_compile_definitions(TR808Garage PUBLIC

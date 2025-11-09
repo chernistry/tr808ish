@@ -13,6 +13,7 @@
 #include "MasterDynamics.h"
 #include "Preset.h"
 #include "PatternRandomizer.h"
+#include "Sequencer.h"
 
 class TR808GarageProcessor : public juce::AudioProcessor
 {
@@ -46,8 +47,11 @@ public:
     juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
     PresetManager& getPresetManager() { return presetManager; }
     PatternRandomizer& getRandomizer() { return randomizer; }
+    Sequencer& getSequencer() { return sequencer; }
     
     void loadPreset(const Preset& preset);
+    void startSequencer();
+    void stopSequencer();
 
 private:
     juce::AudioProcessorValueTreeState apvts;
@@ -78,6 +82,10 @@ private:
     
     PresetManager presetManager;
     PatternRandomizer randomizer;
+    Sequencer sequencer;
+    
+    double nextStepTime = 0.0;
+    int samplesUntilNextStep = 0;
 
     void handleMidiMessage(const juce::MidiMessage& msg);
     Voice* getVoiceForNote(int noteNumber);
