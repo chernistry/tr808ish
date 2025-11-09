@@ -2,6 +2,27 @@
 
 Native VST3 instrument plugin for TR-808 drum synthesis.
 
+## Features
+
+- **6 Synthesized 808 Voices**: BD, SD, CH, OH, CP, RS
+- **RT-Safe Processing**: Zero allocations in audio thread
+- **Low Latency**: 0 samples reported latency
+- **Parameter Smoothing**: No clicks/pops on parameter changes
+- **GM Drum Map Compatible**: Standard MIDI note mapping
+
+## MIDI Note Mapping
+
+| Note | Name | Voice |
+|------|------|-------|
+| C1 (36) | Bass Drum | BD |
+| C#1 (37) | Rim Shot | RS |
+| D1 (38) | Snare Drum | SD |
+| D#1 (39) | Hand Clap | CP |
+| F#1 (42) | Closed Hi-Hat | CH |
+| A#1 (46) | Open Hi-Hat | OH |
+
+Compatible with General MIDI drum mapping standard.
+
 ## Prerequisites
 
 - **macOS**: Xcode 14+ with Command Line Tools
