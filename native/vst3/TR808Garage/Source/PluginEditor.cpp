@@ -18,13 +18,18 @@ TR808GarageEditor::TR808GarageEditor(TR808GarageProcessor& p)
         patternButtons[i].setColour(juce::TextButton::buttonOnColourId, Colors::accent);
         patternButtons[i].setColour(juce::TextButton::textColourOffId, Colors::textSecondary);
         patternButtons[i].setColour(juce::TextButton::textColourOnId, Colors::textPrimary);
+        patternButtons[i].setClickingTogglesState(true);
+        patternButtons[i].setRadioGroupId(1001);
         patternButtons[i].onClick = [this, i] {
             selectedPattern = i;
             processor.setCurrentProgram(i);
+            for (int j = 0; j < 8; ++j)
+                patternButtons[j].setToggleState(j == i, juce::dontSendNotification);
             repaint();
         };
         addAndMakeVisible(patternButtons[i]);
     }
+    patternButtons[0].setToggleState(true, juce::dontSendNotification);
     
     // Copy/Paste/Clear buttons
     copyButton.setButtonText("Copy");
