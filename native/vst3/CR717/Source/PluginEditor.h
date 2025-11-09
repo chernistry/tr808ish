@@ -4,6 +4,7 @@
 #include "PluginProcessor.h"
 #include "DesignTokens.h"
 #include "LookAndFeelCR717.h"
+#include "UiGrid.h"
 #include "CustomKnob.h"
 #include "CustomFader.h"
 #include "LevelMeter.h"
