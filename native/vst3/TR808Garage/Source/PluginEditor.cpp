@@ -9,27 +9,47 @@ TR808GarageEditor::TR808GarageEditor(TR808GarageProcessor& p)
     setResizable(true, true);
     setResizeLimits(1100, 720, 1650, 1080);
     
-    // Pattern bank buttons
-    const char* patternNames[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
-    for (int i = 0; i < 8; ++i)
+    // Preset selector (combo box for 36 presets)
+    presetSelector.setColour(juce::ComboBox::backgroundColourId, Colors::bgSecondary);
+    presetSelector.setColour(juce::ComboBox::textColourId, Colors::textPrimary);
+    presetSelector.setColour(juce::ComboBox::outlineColourId, Colors::border);
+    presetSelector.setColour(juce::ComboBox::arrowColourId, Colors::accent);
+    
+    const auto& presets = processor.getPresetManager().getPresets();
+    for (size_t i = 0; i < presets.size(); ++i)
     {
-        patternButtons[i].setButtonText(patternNames[i]);
-        patternButtons[i].setColour(juce::TextButton::buttonColourId, Colors::bgSecondary);
-        patternButtons[i].setColour(juce::TextButton::buttonOnColourId, Colors::accent);
-        patternButtons[i].setColour(juce::TextButton::textColourOffId, Colors::textSecondary);
-        patternButtons[i].setColour(juce::TextButton::textColourOnId, Colors::textPrimary);
-        patternButtons[i].setClickingTogglesState(true);
-        patternButtons[i].setRadioGroupId(1001);
-        patternButtons[i].onClick = [this, i] {
-            selectedPattern = i;
-            processor.setCurrentProgram(i);
-            for (int j = 0; j < 8; ++j)
-                patternButtons[j].setToggleState(j == i, juce::dontSendNotification);
-            repaint();
-        };
-        addAndMakeVisible(patternButtons[i]);
+        juce::String itemText = presets[i].style + " - " + presets[i].name;
+        presetSelector.addItem(itemText, static_cast<int>(i + 1));
     }
-    patternButtons[0].setToggleState(true, juce::dontSendNotification);
+    presetSelector.setSelectedId(1, juce::dontSendNotification);
+    presetSelector.onChange = [this] {
+        int index = presetSelector.getSelectedId() - 1;
+        if (index >= 0)
+            processor.setCurrentProgram(index);
+    };
+    addAndMakeVisible(presetSelector);
+    
+    // Preset navigation buttons
+    prevPresetButton.setButtonText("<");
+    nextPresetButton.setButtonText(">");
+    for (auto* btn : {&prevPresetButton, &nextPresetButton})
+    {
+        btn->setColour(juce::TextButton::buttonColourId, Colors::bgTertiary);
+        btn->setColour(juce::TextButton::textColourOffId, Colors::textSecondary);
+        addAndMakeVisible(btn);
+    }
+    
+    prevPresetButton.onClick = [this] {
+        int current = presetSelector.getSelectedId() - 1;
+        if (current > 0)
+            presetSelector.setSelectedId(current, juce::sendNotification);
+    };
+    
+    nextPresetButton.onClick = [this] {
+        int current = presetSelector.getSelectedId() + 1;
+        if (current <= presetSelector.getNumItems())
+            presetSelector.setSelectedId(current, juce::sendNotification);
+    };
     
     // Copy/Paste/Clear buttons
     copyButton.setButtonText("Copy");
@@ -189,8 +209,9 @@ void TR808GarageEditor::paintFooter(juce::Graphics& g, juce::Rectangle<int> area
     g.setColour(Colors::textMuted);
     g.setFont(juce::Font(Typography::xs));
     
-    juce::String status = "Pattern " + juce::String(char('A' + selectedPattern)) + " — " + 
-                         processor.getProgramName(selectedPattern);
+    int currentPreset = processor.getCurrentProgram();
+    juce::String status = "Preset " + juce::String(currentPreset + 1) + " — " + 
+                         processor.getProgramName(currentPreset);
     g.drawText(status, area.reduced(Spacing::sm, 0), juce::Justification::centredLeft);
 }
 
@@ -201,23 +222,25 @@ void TR808GarageEditor::resized()
     // Header
     auto headerArea = bounds.removeFromTop(60);
     
-    // Pattern bank
+    // Preset browser area
     auto patternArea = bounds.removeFromTop(50).reduced(Spacing::md, Spacing::sm);
     
-    int btnWidth = 40;
-    int btnSpacing = Spacing::sm;
+    // Preset navigation
+    prevPresetButton.setBounds(patternArea.removeFromLeft(40));
+    patternArea.removeFromLeft(Spacing::sm);
     
-    for (int i = 0; i < 8; ++i)
-    {
-        patternButtons[i].setBounds(patternArea.removeFromLeft(btnWidth));
-        patternArea.removeFromLeft(btnSpacing);
-    }
+    // Preset selector (combo box)
+    presetSelector.setBounds(patternArea.removeFromLeft(300));
+    patternArea.removeFromLeft(Spacing::sm);
     
+    nextPresetButton.setBounds(patternArea.removeFromLeft(40));
     patternArea.removeFromLeft(Spacing::lg);
+    
+    // Copy/Paste/Clear buttons
     copyButton.setBounds(patternArea.removeFromLeft(60));
-    patternArea.removeFromLeft(btnSpacing);
+    patternArea.removeFromLeft(Spacing::sm);
     pasteButton.setBounds(patternArea.removeFromLeft(60));
-    patternArea.removeFromLeft(btnSpacing);
+    patternArea.removeFromLeft(Spacing::sm);
     clearButton.setBounds(patternArea.removeFromLeft(60));
     
     // Theme button (top right)
@@ -271,11 +294,11 @@ void TR808GarageEditor::resized()
 
 void TR808GarageEditor::timerCallback()
 {
-    // Update pattern selection if changed externally
+    // Update preset selection if changed externally
     int currentProgram = processor.getCurrentProgram();
-    if (currentProgram != selectedPattern)
+    if (currentProgram + 1 != presetSelector.getSelectedId())
     {
-        selectedPattern = currentProgram;
+        presetSelector.setSelectedId(currentProgram + 1, juce::dontSendNotification);
         repaint();
     }
     

@@ -25,10 +25,10 @@ private:
 
     TR808GarageProcessor& processor;
 
-    // Pattern bank
-    juce::TextButton patternButtons[8];
+    // Preset browser
+    juce::ComboBox presetSelector;
+    juce::TextButton prevPresetButton, nextPresetButton;
     juce::TextButton copyButton, pasteButton, clearButton;
-    int selectedPattern = 0;
     
     // Theme toggle
     juce::TextButton themeButton;

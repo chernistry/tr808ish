@@ -1,18 +1,3 @@
-# TICKET: UI Best-Practices Guide — tr808-synth (2025) - COMPLETE OVERHAUL
-
-## EXECUTION INSTRUCTIONS
-This ticket is a complete UI overhaul guide for the TR-808 synth project. As an AI agent, you are tasked with implementing all the recommendations in this document across the entire UI codebase. This includes:
-
-1. **Complete CSS refactor** - Implement the design system with CSS custom properties, layers, and modern CSS features
-2. **Accessibility upgrade** - Add ARIA roles, keyboard navigation, and WCAG AA compliance
-3. **Performance optimization** - Implement efficient animations and sync with audio clock
-4. **Responsive design** - Use container queries instead of media queries
-5. **Component restructuring** - Update all UI components to match the patterns described herein
-
-This guide serves as both specification and implementation plan. Execute all sections in priority order.
-
----
-
 # UI Best-Practices Guide — tr808-synth (2025)
 
 ## 1) TL;DR
