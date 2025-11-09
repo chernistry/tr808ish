@@ -18,39 +18,36 @@ public:
     void trigger(float velocity) override
     {
         env = velocity;
-        clapCount = 0;
-        clapDelay = 0;
+        pulseIndex = 0;
+        samplesUntilNextPulse = 0;
         active = true;
         updateSmoothedValues();
     }
 
-    bool isActive() const override { return active && (env > 0.0001f || clapCount < 3); }
+    bool isActive() const override { return active && (env > 0.0001f || pulseIndex < 4); }
 
     void renderNextBlock(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override
     {
         if (!active) return;
 
+        // TR-808 spec: 4 pulses at 0, 12ms, 24ms, 36ms
+        const int pulseTimes[4] = { 0, static_cast<int>(sampleRate * 0.012), 
+                                     static_cast<int>(sampleRate * 0.024), 
+                                     static_cast<int>(sampleRate * 0.036) };
+
         for (int i = 0; i < numSamples; ++i)
         {
-            // Multi-clap effect
-            if (clapDelay > 0)
+            // Trigger pulses at specified times
+            if (pulseIndex < 4 && samplesUntilNextPulse <= 0)
             {
-                clapDelay--;
-                if (clapDelay == 0 && clapCount < 3)
-                {
-                    env = 0.8f - (clapCount * 0.15f);
-                    clapCount++;
-                    if (clapCount < 3)
-                        clapDelay = static_cast<int>(sampleRate * 0.015);
-                }
+                env = 0.9f - (pulseIndex * 0.15f);  // Decreasing amplitude
+                pulseIndex++;
+                if (pulseIndex < 4)
+                    samplesUntilNextPulse = pulseTimes[pulseIndex] - pulseTimes[pulseIndex - 1];
             }
-            else if (clapCount == 0)
-            {
-                clapDelay = static_cast<int>(sampleRate * 0.015);
-                clapCount = 1;
-            }
+            samplesUntilNextPulse--;
 
-            if (env <= 0.0001f && clapCount >= 3)
+            if (env <= 0.0001f && pulseIndex >= 4)
             {
                 active = false;
                 break;
@@ -61,7 +58,9 @@ public:
             
             float sample = noise * level.getNextValue();
             
-            env *= 0.98f;
+            // Tail decay: 150ms (TR-808 spec)
+            float decayRate = std::exp(-1.0f / (0.15f * static_cast<float>(sampleRate)));
+            env *= decayRate;
 
             applyPan(buffer, startSample + i, numSamples, sample);
         }
@@ -69,8 +68,8 @@ public:
 
 private:
     float env = 0.0f;
-    int clapCount = 0;
-    int clapDelay = 0;
+    int pulseIndex = 0;
+    int samplesUntilNextPulse = 0;
     bool active = false;
     juce::Random random;
     juce::IIRFilter filter;
@@ -86,6 +85,7 @@ public:
         tune.reset(sr, 0.02);
         pan.reset(sr, 0.02);
         
+        // TR-808 spec: BP center ~2.5 kHz
         filter.setCoefficients(juce::IIRCoefficients::makeBandPass(sr, 2500.0));
     }
 
@@ -123,7 +123,9 @@ public:
 
             float sample = (tone * 0.3f + noise * 0.7f) * env * level.getNextValue();
             
-            env *= 0.99f;
+            // TR-808 spec: Expo decay ~30ms
+            float decayRate = std::exp(-1.0f / (0.03f * static_cast<float>(sampleRate)));
+            env *= decayRate;
 
             applyPan(buffer, startSample + i, numSamples, sample);
         }
