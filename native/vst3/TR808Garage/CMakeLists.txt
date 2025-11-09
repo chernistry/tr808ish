@@ -36,6 +36,7 @@ target_sources(TR808Garage PRIVATE
     Source/PluginEditor.cpp
     Source/PluginEditor.h
     Source/Parameters.h
+    Source/DesignTokens.h
     Source/Voice.h
     Source/BassDrumVoice.h
     Source/SnareDrumVoice.h
