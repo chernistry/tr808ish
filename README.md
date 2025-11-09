@@ -2,6 +2,7 @@
 
 ![Cherni CR-717 Web Synth Screenshot](./assets/screenshot.png)
 ![Cherni CR-717 VST Synth Screenshot](./assets/screenshot2.png)
+
 A simple but functional drum sequencer created with AI in about 30 minutes, available both as a web-based application and a full-featured VST3 plugin. Inspired by the classic TR-808 but not pretending to replicate the original. A modern VST-style interface with comprehensive functionality. Use it freely in your projects!
 
 This project demonstrates the SDD (Spec-Driven Development) approach - a methodology for rapid development using AI agents with structured prompts and templates. For more details on SDD, check out [SDDRush](https://github.com/chernistry/SDDRush).
