@@ -33,6 +33,11 @@ juce_add_plugin(TR808Garage
 target_sources(TR808Garage PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginProcessor.h
+    Source/Voice.h
+    Source/BassDrumVoice.h
+    Source/SnareDrumVoice.h
+    Source/HiHatVoice.h
+    Source/PercussionVoice.h
 )
 
 target_compile_definitions(TR808Garage PUBLIC

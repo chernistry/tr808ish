@@ -1,6 +1,10 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "BassDrumVoice.h"
+#include "SnareDrumVoice.h"
+#include "HiHatVoice.h"
+#include "PercussionVoice.h"
 
 class TR808GarageProcessor : public juce::AudioProcessor
 {
@@ -32,5 +36,16 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
 private:
+    // Voice instances (polyphony = 1 per voice type)
+    BassDrumVoice bassDrum;
+    SnareDrumVoice snareDrum;
+    ClosedHiHatVoice closedHat;
+    OpenHiHatVoice openHat;
+    ClapVoice clap;
+    RimShotVoice rimShot;
+
+    void handleMidiMessage(const juce::MidiMessage& msg);
+    Voice* getVoiceForNote(int noteNumber);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TR808GarageProcessor)
 };
