@@ -284,18 +284,20 @@ Voice* TR808GarageProcessor::getVoiceForNote(int noteNumber)
 
 void TR808GarageProcessor::setCurrentProgram(int index)
 {
-    if (index >= 0 && index < 8)
+    const auto& presets = presetManager.getPresets();
+    if (index >= 0 && index < static_cast<int>(presets.size()))
     {
         currentPreset = index;
-        loadPreset(index);
+        loadPreset(presets[index]);
     }
 }
 
 const juce::String TR808GarageProcessor::getProgramName(int index)
 {
-    const char* names[] = {"Pattern A", "Pattern B", "Pattern C", "Pattern D",
-                           "Pattern E", "Pattern F", "Pattern G", "Pattern H"};
-    return (index >= 0 && index < 8) ? names[index] : "";
+    const auto& presets = presetManager.getPresets();
+    if (index >= 0 && index < static_cast<int>(presets.size()))
+        return presets[index].name;
+    return "";
 }
 
 void TR808GarageProcessor::loadPreset(int index)
@@ -358,6 +360,27 @@ void TR808GarageProcessor::loadPreset(int index)
     apvts.getParameter(ParamIDs::rsTune)->setValueNotifyingHost((preset.rsTune + 12.0f) / 24.0f);
     
     apvts.getParameter(ParamIDs::masterLevel)->setValueNotifyingHost(preset.master);
+}
+
+void TR808GarageProcessor::loadPreset(const Preset& preset)
+{
+    for (const auto& [paramID, value] : preset.parameters)
+    {
+        if (auto* param = apvts.getParameter(paramID))
+        {
+            // Convert raw value to normalized if needed
+            auto* rangedParam = dynamic_cast<juce::RangedAudioParameter*>(param);
+            if (rangedParam)
+            {
+                float normalizedValue = rangedParam->convertTo0to1(value);
+                param->setValueNotifyingHost(normalizedValue);
+            }
+            else
+            {
+                param->setValueNotifyingHost(value);
+            }
+        }
+    }
 }
 
 void TR808GarageProcessor::getStateInformation(juce::MemoryBlock& destData)

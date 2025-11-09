@@ -48,6 +48,11 @@ target_sources(TR808Garage PRIVATE
     Source/PercussionVoice.h
     Source/TomVoice.h
     Source/CymbalVoice.h
+    Source/Reverb.h
+    Source/Delay.h
+    Source/MasterDynamics.h
+    Source/Preset.h
+    Source/PatternRandomizer.h
 )
 
 target_compile_definitions(TR808Garage PUBLIC
