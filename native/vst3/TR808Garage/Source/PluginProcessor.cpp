@@ -73,6 +73,37 @@ void TR808GarageProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     // Update voice parameters from APVTS
     updateVoiceParameters();
 
+    int numSamples = buffer.getNumSamples();
+
+    // Process internal sequencer
+    if (sequencer.getPlaying())
+    {
+        double bpm = sequencer.getBPM();
+        double samplesPerStep = (60.0 / bpm / 4.0) * getSampleRate(); // 16th notes
+        
+        for (int sample = 0; sample < numSamples; ++sample)
+        {
+            if (samplesUntilNextStep <= 0)
+            {
+                // Trigger voices for current step
+                int currentStep = sequencer.getCurrentStep();
+                Voice* voices[] = {&bassDrum, &snareDrum, &lowTom, &midTom, &highTom, &rimShot,
+                                   &clap, &closedHat, &openHat, &cymbal, &ride, &cowbell};
+                
+                for (int v = 0; v < 12; ++v)
+                {
+                    if (sequencer.getStep(v, currentStep))
+                        voices[v]->trigger(0.8f);
+                }
+                
+                // Advance to next step
+                sequencer.setCurrentStep((currentStep + 1) % 16);
+                samplesUntilNextStep = static_cast<int>(samplesPerStep);
+            }
+            samplesUntilNextStep--;
+        }
+    }
+
     // Process MIDI events
     for (const auto metadata : midiMessages)
     {
@@ -82,7 +113,6 @@ void TR808GarageProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     }
 
     // Render all active voices
-    int numSamples = buffer.getNumSamples();
     reverbBuffer.clear();
     delayBuffer.clear();
     
@@ -381,6 +411,18 @@ void TR808GarageProcessor::loadPreset(const Preset& preset)
             }
         }
     }
+}
+
+void TR808GarageProcessor::startSequencer()
+{
+    sequencer.setPlaying(true);
+    sequencer.setCurrentStep(0);
+    samplesUntilNextStep = 0;
+}
+
+void TR808GarageProcessor::stopSequencer()
+{
+    sequencer.setPlaying(false);
 }
 
 void TR808GarageProcessor::getStateInformation(juce::MemoryBlock& destData)

@@ -6,8 +6,11 @@
 #include "CustomKnob.h"
 #include "CustomFader.h"
 #include "LevelMeter.h"
+#include "MidiDragSource.h"
 
-class TR808GarageEditor : public juce::AudioProcessorEditor, private juce::Timer
+class TR808GarageEditor : public juce::AudioProcessorEditor, 
+                          private juce::Timer,
+                          public juce::DragAndDropContainer
 {
 public:
     explicit TR808GarageEditor(TR808GarageProcessor&);
@@ -29,6 +32,17 @@ private:
     juce::ComboBox presetSelector;
     juce::TextButton prevPresetButton, nextPresetButton;
     juce::TextButton copyButton, pasteButton, clearButton;
+    
+    // Sequencer transport
+    juce::TextButton playButton, stopButton;
+    juce::Label bpmLabel;
+    juce::Slider bpmSlider;
+    
+    // Sequencer grid
+    juce::ComboBox voiceSelector;
+    juce::TextButton stepButtons[16];
+    MidiDragSource midiDragSource;
+    int selectedVoice = 0;
     
     // Theme toggle
     juce::TextButton themeButton;
@@ -58,6 +72,8 @@ private:
     void setupVoiceControls(VoiceControls& vc, const juce::String& name, juce::Colour color,
                            const char* levelID, const char* tuneID, 
                            const char* decayID, const char* toneID);
+    
+    void updateStepButtons();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TR808GarageEditor)
 };
