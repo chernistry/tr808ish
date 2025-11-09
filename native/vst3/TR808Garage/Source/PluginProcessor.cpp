@@ -132,7 +132,19 @@ void TR808GarageProcessor::handleMidiMessage(const juce::MidiMessage& msg)
     
     Voice* voice = getVoiceForNote(note);
     if (voice != nullptr)
+    {
+        // Hi-hat choke group
+        bool chokeEnabled = apvts.getRawParameterValue(ParamIDs::hhChoke)->load() > 0.5f;
+        if (chokeEnabled)
+        {
+            if (note == 42) // Closed hi-hat
+                openHat.stop(); // Stop open hat when closed plays
+            else if (note == 46) // Open hi-hat
+                closedHat.stop(); // Stop closed hat when open plays
+        }
+        
         voice->trigger(velocity);
+    }
 }
 
 Voice* TR808GarageProcessor::getVoiceForNote(int noteNumber)

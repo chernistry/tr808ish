@@ -9,6 +9,8 @@ public:
     {
         sampleRate = sr;
         level.reset(sr, 0.02);
+        tone.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
         
         filter.setCoefficients(juce::IIRCoefficients::makeBandPass(sr, 1500.0));
     }
@@ -27,9 +29,6 @@ public:
     void renderNextBlock(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override
     {
         if (!active) return;
-
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -64,8 +63,7 @@ public:
             
             env *= 0.98f;
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 
@@ -86,6 +84,7 @@ public:
         sampleRate = sr;
         level.reset(sr, 0.02);
         tune.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
         
         filter.setCoefficients(juce::IIRCoefficients::makeBandPass(sr, 2500.0));
     }
@@ -103,9 +102,6 @@ public:
     void renderNextBlock(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override
     {
         if (!active) return;
-
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -129,8 +125,7 @@ public:
             
             env *= 0.99f;
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 

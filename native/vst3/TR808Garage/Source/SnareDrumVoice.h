@@ -10,8 +10,10 @@ public:
         sampleRate = sr;
         level.reset(sr, 0.02);
         tune.reset(sr, 0.02);
+        fineTune.reset(sr, 0.02);
         decay.reset(sr, 0.02);
         tone.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
         
         filter.setCoefficients(juce::IIRCoefficients::makeHighPass(sr, 2000.0));
     }
@@ -31,9 +33,6 @@ public:
     {
         if (!active) return;
 
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
-
         for (int i = 0; i < numSamples; ++i)
         {
             if (env <= 0.0001f && noiseEnv <= 0.0001f)
@@ -45,9 +44,10 @@ public:
             float currentLevel = level.getNextValue();
             float currentDecay = decay.getNextValue();
             float currentTone = tone.getNextValue();
+            float currentTune = tune.getNextValue() + fineTune.getNextValue();
 
             // Body tone (180Hz)
-            float freq = (180.0f + tune.getNextValue() * 20.0f) / static_cast<float>(sampleRate);
+            float freq = (180.0f + currentTune * 20.0f) / static_cast<float>(sampleRate);
             float body = std::sin(phase * juce::MathConstants<float>::twoPi) * env * 0.5f;
             phase += freq;
             if (phase >= 1.0f) phase -= 1.0f;
@@ -61,8 +61,7 @@ public:
             env *= 0.996f - (currentDecay * 0.003f);
             noiseEnv *= 0.993f - (currentDecay * 0.003f);
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 

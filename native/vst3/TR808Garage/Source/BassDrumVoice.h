@@ -10,8 +10,10 @@ public:
         sampleRate = sr;
         level.reset(sr, 0.02);
         tune.reset(sr, 0.02);
+        fineTune.reset(sr, 0.02);
         decay.reset(sr, 0.02);
         tone.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
     }
 
     void trigger(float velocity) override
@@ -28,9 +30,6 @@ public:
     {
         if (!active) return;
 
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
-
         for (int i = 0; i < numSamples; ++i)
         {
             if (env <= 0.0001f)
@@ -39,7 +38,7 @@ public:
                 break;
             }
 
-            float currentTune = tune.getNextValue();
+            float currentTune = tune.getNextValue() + fineTune.getNextValue();
             float currentDecay = decay.getNextValue();
             float currentLevel = level.getNextValue();
 
@@ -57,8 +56,7 @@ public:
             float decayRate = 0.9995f - (currentDecay * 0.002f);
             env *= decayRate;
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 

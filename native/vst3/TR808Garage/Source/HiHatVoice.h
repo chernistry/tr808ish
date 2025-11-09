@@ -10,6 +10,7 @@ public:
         sampleRate = sr;
         level.reset(sr, 0.02);
         tone.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
         
         filter.setCoefficients(juce::IIRCoefficients::makeHighPass(sr, 7000.0));
     }
@@ -20,15 +21,18 @@ public:
         active = true;
         updateSmoothedValues();
     }
+    
+    void stop() override
+    {
+        env = 0.0f;
+        active = false;
+    }
 
     bool isActive() const override { return active && env > 0.0001f; }
 
     void renderNextBlock(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override
     {
         if (!active) return;
-
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -45,8 +49,7 @@ public:
             
             env *= 0.985f;
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 
@@ -66,6 +69,7 @@ public:
         level.reset(sr, 0.02);
         decay.reset(sr, 0.02);
         tone.reset(sr, 0.02);
+        pan.reset(sr, 0.02);
         
         filter.setCoefficients(juce::IIRCoefficients::makeHighPass(sr, 6000.0));
     }
@@ -76,15 +80,18 @@ public:
         active = true;
         updateSmoothedValues();
     }
+    
+    void stop() override
+    {
+        env = 0.0f;
+        active = false;
+    }
 
     bool isActive() const override { return active && env > 0.0001f; }
 
     void renderNextBlock(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override
     {
         if (!active) return;
-
-        auto* left = buffer.getWritePointer(0);
-        auto* right = buffer.getWritePointer(1);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -103,8 +110,7 @@ public:
             
             env *= 0.9985f - (currentDecay * 0.002f);
 
-            left[startSample + i] += sample;
-            right[startSample + i] += sample;
+            applyPan(buffer, startSample + i, numSamples, sample);
         }
     }
 
