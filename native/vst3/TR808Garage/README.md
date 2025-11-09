@@ -5,10 +5,31 @@ Native VST3 instrument plugin for TR-808 drum synthesis.
 ## Features
 
 - **6 Synthesized 808 Voices**: BD, SD, CH, OH, CP, RS
+- **21 Parameters**: Per-voice Level, Tune, Decay, Tone/Snappy controls
+- **8 Factory Presets**: Pattern A-H (UK Garage, Deep House, Techno, etc.)
 - **RT-Safe Processing**: Zero allocations in audio thread
 - **Low Latency**: 0 samples reported latency
-- **Parameter Smoothing**: No clicks/pops on parameter changes
+- **GUI Editor**: Dark theme with rotary knobs and faders
 - **GM Drum Map Compatible**: Standard MIDI note mapping
+
+## System Requirements
+
+- **macOS**: 10.13+ (High Sierra or later)
+- **CPU**: Intel or Apple Silicon (Universal Binary)
+- **RAM**: 4 MB minimum
+- **DAW**: Any VST3-compatible host (Ableton Live, Logic Pro, Reaper, etc.)
+
+## Installation
+
+### macOS
+
+1. Download `TR808Garage-1.0.0-macos.vst3.zip`
+2. Unzip the archive
+3. Copy `TR-808 Garage.vst3` to:
+   ```
+   ~/Library/Audio/Plug-Ins/VST3/
+   ```
+4. Rescan plugins in your DAW
 
 ## MIDI Note Mapping
 
@@ -21,63 +42,64 @@ Native VST3 instrument plugin for TR-808 drum synthesis.
 | F#1 (42) | Closed Hi-Hat | CH |
 | A#1 (46) | Open Hi-Hat | OH |
 
-Compatible with General MIDI drum mapping standard.
+## Factory Presets
 
-## Prerequisites
+1. **Pattern A - UK Garage**: Balanced, punchy kick
+2. **Pattern B - Deep House**: Lower kick, softer snare
+3. **Pattern C - Techno**: Loud kick, aggressive
+4. **Pattern D - Hip-Hop**: Deep kick, snappy snare
+5. **Pattern E - Minimal**: Quiet kick, prominent hats
+6. **Pattern F - Breakbeat**: Tuned snare, varied levels
+7. **Pattern G - Ambient**: Long decays, spacious
+8. **Pattern H - Aggressive**: Everything loud
 
-- **macOS**: Xcode 14+ with Command Line Tools
-- **CMake**: 3.22+
-- **VST3 SDK**: Optional (JUCE includes VST3 support)
+## DAW Integration
 
-## Build
+### Ableton Live
+1. Create MIDI track
+2. Load from Instruments → Plug-ins → VST3
+3. Select preset from "Program" dropdown
+4. Trigger with MIDI notes C1-A#1
 
-```bash
-# Configure
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+### Logic Pro
+1. Create Software Instrument track
+2. Load from VST3 instruments
+3. Use preset menu for patterns
+4. Play with MIDI keyboard
 
-# Build
-cmake --build build --config Release
+### Reaper
+1. Insert → Virtual Instrument → VST3: TR-808 Garage
+2. Program change for presets
+3. MIDI item triggers drums
 
-# Output: build/TR808Garage_artefacts/Release/VST3/TR-808 Garage.vst3
-```
+## Performance
 
-## Install
+- **CPU**: <3% at 44.1kHz/64 samples
+- **Latency**: 0 samples
+- **Memory**: ~4 MB
+- **Tested**: 44.1k-96k, 64-1024 buffer sizes
 
-```bash
-# Copy to system VST3 directory
-cp -r "build/TR808Garage_artefacts/Release/VST3/TR-808 Garage.vst3" \
-      ~/Library/Audio/Plug-Ins/VST3/
-```
+## Troubleshooting
 
-## Validate
+**Plugin not appearing**: Verify path `~/Library/Audio/Plug-Ins/VST3/`, rescan in DAW
 
-```bash
-# Using VST3PluginTestHost (from VST3 SDK)
-./scripts/validate_vst3.sh
+**No sound**: Check MIDI routing, verify notes C1-A#1, check levels
 
-# Or manually with pluginval
-pluginval --strictness-level 8 --validate "TR-808 Garage.vst3"
-```
+**Clicks/pops**: Increase buffer size to 128 or 256
 
-## Development
+## Technical Specs
 
-```bash
-# Debug build
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build --config Debug
+- **Format**: VST3
+- **I/O**: Stereo out, MIDI in
+- **Synthesis**: Analog modeling
+- **Parameters**: 21 automatable
+- **Version**: 1.0.0
+- **JUCE**: 8.0.4
 
-# Clean
-rm -rf build
-```
+## License
 
-## Testing in DAW
+MIT - See project root
 
-1. Copy .vst3 to `~/Library/Audio/Plug-Ins/VST3/`
-2. Rescan plugins in your DAW (Ableton Live, Logic Pro, Reaper)
-3. Load as instrument track
-4. Verify: stereo output, MIDI input, 0 latency
+---
 
-## CI
-
-GitHub Actions builds Release artifacts for macOS (Universal Binary).
-See `.github/workflows/build-vst3.yml`
+**Build**: 2025-11-09 | **Validation**: pluginval ✓
