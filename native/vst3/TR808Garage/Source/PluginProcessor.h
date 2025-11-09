@@ -11,6 +11,8 @@
 #include "Reverb.h"
 #include "Delay.h"
 #include "MasterDynamics.h"
+#include "Preset.h"
+#include "PatternRandomizer.h"
 
 class TR808GarageProcessor : public juce::AudioProcessor
 {
@@ -32,7 +34,7 @@ public:
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override { return 0.0; }
 
-    int getNumPrograms() override { return 8; }
+    int getNumPrograms() override { return 36; }
     int getCurrentProgram() override { return currentPreset; }
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
@@ -42,6 +44,10 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
+    PresetManager& getPresetManager() { return presetManager; }
+    PatternRandomizer& getRandomizer() { return randomizer; }
+    
+    void loadPreset(const Preset& preset);
 
 private:
     juce::AudioProcessorValueTreeState apvts;
@@ -69,6 +75,9 @@ private:
     TempoSyncDelay delay;
     MasterDynamics masterDynamics;
     juce::AudioBuffer<float> reverbBuffer, delayBuffer, voiceBuffer;
+    
+    PresetManager presetManager;
+    PatternRandomizer randomizer;
 
     void handleMidiMessage(const juce::MidiMessage& msg);
     Voice* getVoiceForNote(int noteNumber);
