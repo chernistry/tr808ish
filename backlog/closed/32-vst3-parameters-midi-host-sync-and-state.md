@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 Parameters, MIDI, Host Sync, State & Presets
 
@@ -25,9 +25,9 @@ Steps
    - Implement `getStateInformation`/`setStateInformation`; add 8 factory presets.
 
 Affected Files
-- `native/vst3/TR808Garage/Source/PluginProcessor.*`
-- `native/vst3/TR808Garage/Source/Params.*`
-- `native/vst3/TR808Garage/Source/Presets.*`
+- `native/vst3/CR717/Source/PluginProcessor.*`
+- `native/vst3/CR717/Source/Params.*`
+- `native/vst3/CR717/Source/Presets.*`
 
 Risks & Mitigations
 - Parameter spam (UI) → throttle GUI updates; use async flags.

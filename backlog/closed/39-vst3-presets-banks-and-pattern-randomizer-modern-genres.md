@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 Presets (Banks), Genre‑Aware Pattern Randomizer, Modern Styles
 
@@ -40,8 +40,8 @@ Steps
    - Verify loads are click‑free; check content path size; ensure no blocking IO on audio thread.
 
 Affected Files
-- native/vst3/TR808Garage/Source/content/{Preset,Randomizer,Browser}.*
-- native/vst3/TR808Garage/Resources/presets/*.json
+- native/vst3/CR717/Source/content/{Preset,Randomizer,Browser}.*
+- native/vst3/CR717/Resources/presets/*.json
 - UI panels under `ui/presets/*`
 
 Risks & Mitigations

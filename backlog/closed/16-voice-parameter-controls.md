@@ -9,13 +9,13 @@
 
 ## Objective
 
-Add real-time parameter controls for each voice - the "knobs" that make TR-808 legendary. Each voice needs tunable parameters that affect synthesis in real-time.
+Add real-time parameter controls for each voice - the "knobs" that make CR-717 legendary. Each voice needs tunable parameters that affect synthesis in real-time.
 
 ---
 
 ## Background
 
-Original TR-808 has these controls per voice:
+Original CR-717 has these controls per voice:
 
 **Bass Drum:**
 - Level (volume)

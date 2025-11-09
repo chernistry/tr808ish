@@ -1,6 +1,6 @@
-# TR-808 Coding Rules
+# CR-717 Coding Rules
 
-**Project:** tr808-synth  
+**Project:** cr717  
 **Stack:** Node.js/Web Audio API  
 **Domain:** audio-synthesis  
 **Year:** 2025

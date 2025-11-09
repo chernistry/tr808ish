@@ -3,7 +3,7 @@
 You are the Implementing Agent (CLI/IDE). Work strictly from specifications.
 
 Project Context:
-- Project: tr808-synth
+- Project: cr717
 - Stack: Node.js/Web Audio API
 - Domain: audio-synthesis
 - Year: 2025
@@ -12,11 +12,11 @@ Inline attachments to read:
 
 ## Project Description
 
-# TR-808 Drum Machine - Project Description
+# CR-717 Drum Machine - Project Description
 
 ## Цель проекта
 
-Создать веб-приложение, эмулирующее классическую драм-машину Roland TR-808 с использованием Web Audio API.
+Создать веб-приложение, эмулирующее классическую драм-машину Roland CR-717 с использованием Web Audio API.
 
 
 

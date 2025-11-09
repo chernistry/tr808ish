@@ -9,7 +9,7 @@
 
 ## Objective
 
-Initialize TR-808 project with Vite, TypeScript, and testing tools (Vitest + Playwright).
+Initialize CR-717 project with Vite, TypeScript, and testing tools (Vitest + Playwright).
 
 ---
 
@@ -32,7 +32,7 @@ Initialize TR-808 project with Vite, TypeScript, and testing tools (Vitest + Pla
 
 ### 1. Create Vite Project
 ```bash
-cd /Users/sasha/IdeaProjects/personal_projects/tr808-synth
+cd /Users/sasha/IdeaProjects/personal_projects/cr717
 npm create vite@latest . -- --template vanilla-ts
 npm install
 ```
@@ -140,12 +140,12 @@ mkdir -p public
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TR-808 Drum Machine</title>
+  <title>CR-717 Drum Machine</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <div id="app">
-    <h1>TR-808 Drum Machine</h1>
+    <h1>CR-717 Drum Machine</h1>
     <div id="controls">
       <!-- Controls will be added in Ticket 08 -->
     </div>
@@ -188,7 +188,7 @@ h1 {
 
 ### 9. Create Basic src/main.ts
 ```typescript
-console.log('TR-808 initialized');
+console.log('CR-717 initialized');
 
 // Entry point - will be expanded in later tickets
 ```
@@ -211,7 +211,7 @@ import { test, expect } from '@playwright/test';
 
 test('page loads', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('h1')).toContainText('TR-808');
+  await expect(page.locator('h1')).toContainText('CR-717');
 });
 ```
 
@@ -240,7 +240,7 @@ test('page loads', async ({ page }) => {
 
 ### Verification Steps
 1. Run `npm run dev` → Should start dev server without errors
-2. Open http://localhost:5173 → Should see "TR-808 Drum Machine" heading
+2. Open http://localhost:5173 → Should see "CR-717 Drum Machine" heading
 3. Run `npm run build` → Should create `dist/` folder
 4. Run `npm run test` → Should run and pass placeholder test
 5. Run `npm run e2e` → Should run and pass page load test

@@ -20,7 +20,7 @@ Web MIDI API allows:
 - MIDI output: send clock, notes for recording in DAW
 - MIDI learn: map any CC to any parameter
 
-Standard MIDI mapping for TR-808:
+Standard MIDI mapping for CR-717:
 - Notes 36-47: Trigger voices (C2-B2)
 - CC 1-127: Parameter controls
 - Clock: 24 PPQN (pulses per quarter note)

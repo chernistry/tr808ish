@@ -1,8 +1,8 @@
-# TR-808 Drum Machine - Project Description
+# CR-717 Drum Machine - Project Description
 
 ## Project Goal
 
-Create a web application that emulates the classic Roland TR-808 drum machine using the Web Audio API.
+Create a web application that emulates the classic Roland CR-717 drum machine using the Web Audio API.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ Create a web application that emulates the classic Roland TR-808 drum machine us
 ### Technical Requirements
 - **Frontend**: Vanilla JavaScript or React (at choice)
 - **Audio**: Web Audio API for sound synthesis
-- **UI**: Minimal interface reminiscent of the original TR-808
+- **UI**: Minimal interface reminiscent of the original CR-717
 - **Responsive**: Works on desktop and tablet
 
 ## Limitations
@@ -45,7 +45,7 @@ Create a web application that emulates the classic Roland TR-808 drum machine us
 
 ## References
 
-- Original Roland TR-808
+- Original Roland CR-717
 - Web Audio API documentation
 - Examples of drum sound synthesis
 

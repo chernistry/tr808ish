@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 — External MIDI Drag & Drop to DAW (Ableton/others)
 
@@ -38,6 +38,6 @@ Notes
 - Some hosts can still block OS DnD; always ship a Save/Reveal fallback.
 
 Affected Files
-- `native/vst3/TR808Garage/Source/ui/DragHandle.*`
-- `native/vst3/TR808Garage/Source/export/MidiExporter.*`
+- `native/vst3/CR717/Source/ui/DragHandle.*`
+- `native/vst3/CR717/Source/export/MidiExporter.*`
 - Editor wiring + LookAndFeel for drag image.

@@ -30,13 +30,13 @@ Comprehensive test coverage for full user flows.
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test.describe('TR-808 Playback', () => {
+test.describe('CR-717 Playback', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
   test('should load page with title', async ({ page }) => {
-    await expect(page.locator('h1')).toContainText('TR-808');
+    await expect(page.locator('h1')).toContainText('CR-717');
   });
 
   test('should start playback on Play button', async ({ page }) => {

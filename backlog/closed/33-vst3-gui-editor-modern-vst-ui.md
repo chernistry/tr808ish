@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 GUI Editor — Modern VST UI (Low-Jank, Skinnable)
 
@@ -24,8 +24,8 @@ Steps
    - Mouse/keyboard accessibility; resize behavior; high DPI checks.
 
 Affected Files
-- `native/vst3/TR808Garage/Source/PluginEditor.*`
-- `native/vst3/TR808Garage/Source/ui/**`
+- `native/vst3/CR717/Source/PluginEditor.*`
+- `native/vst3/CR717/Source/ui/**`
 
 Risks & Mitigations
 - UI jank from heavy painting → cache layers where useful; avoid heavy gradients; throttle repaint.

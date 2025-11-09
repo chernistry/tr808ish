@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 FX Sends (Reverb/Delay), Per‑Voice Routing, Master Bus (Comp/Limiter)
 
@@ -27,9 +27,9 @@ Steps
    - CPU budget at 44.1k/48k, 64/128 buffers; TP detection validated with test signals; no denormals.
 
 Affected Files
-- native/vst3/TR808Garage/Source/dsp/{Reverb,Delay,Comp,Limiter,SoftClip}.*
-- native/vst3/TR808Garage/Source/{Mixer,Routing,PluginProcessor}.*
-- native/vst3/TR808Garage/Source/ui/{FXPanel,MasterPanel, Meters}.*
+- native/vst3/CR717/Source/dsp/{Reverb,Delay,Comp,Limiter,SoftClip}.*
+- native/vst3/CR717/Source/{Mixer,Routing,PluginProcessor}.*
+- native/vst3/CR717/Source/ui/{FXPanel,MasterPanel, Meters}.*
 
 Risks & Mitigations
 - Convolution CPU spikes → default to algorithmic reverb; IR as optional.

@@ -1,4 +1,4 @@
-# Ticket 15: Complete TR-808 Drum Voice Set
+# Ticket 15: Complete CR-717 Drum Voice Set
 
 **Status:** 🟡 Open  
 **Priority:** P1 (Must have)  
@@ -9,13 +9,13 @@
 
 ## Objective
 
-Add missing TR-808 voices to match original: Low/Mid/High Toms, Rimshot, Cowbell, Cymbal, Accent.
+Add missing CR-717 voices to match original: Low/Mid/High Toms, Rimshot, Cowbell, Cymbal, Accent.
 
 ---
 
 ## Background
 
-Original TR-808 has 16 voices total:
+Original CR-717 has 16 voices total:
 - ✅ Bass Drum (BD)
 - ✅ Snare Drum (SD)
 - ✅ Low Tom (LT) - MISSING
@@ -300,5 +300,5 @@ export interface Pattern {
 - [ ] UI shows all 12 voices
 - [ ] Unit tests pass
 - [ ] E2E tests pass
-- [ ] Sounds authentic to TR-808
-- [ ] Committed: "feat(audio): add complete TR-808 voice set (12 voices + accent)"
+- [ ] Sounds authentic to CR-717
+- [ ] Committed: "feat(audio): add complete CR-717 voice set (12 voices + accent)"

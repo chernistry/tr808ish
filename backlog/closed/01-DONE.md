@@ -5,7 +5,7 @@
 
 ## Summary
 
-Successfully initialized TR-808 project with modern tooling stack:
+Successfully initialized CR-717 project with modern tooling stack:
 - Vite 6 for build/dev server
 - TypeScript with strict mode
 - Vitest 4 for unit testing

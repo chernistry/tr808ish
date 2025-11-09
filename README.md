@@ -1,8 +1,8 @@
-# TR-808 Synth
+# Cherni CR-717 Synth
 
-![TR-808 Synth Screenshot](./assets/screenshot.png)
+![Cherni CR-717 Synth Screenshot](./assets/screenshot.png)
 
-A simple but functional drum sequencer created with AI in about 30 minutes, available both as a web-based application and a full-featured VST3 plugin. Inspired by the classic TR-808 but not pretending to replicate the original. A modern VST-style interface with comprehensive functionality. Use it freely in your projects!
+A simple but functional drum sequencer created with AI in about 30 minutes, available both as a web-based application and a full-featured VST3 plugin. Inspired by the classic CR-717 but not pretending to replicate the original. A modern VST-style interface with comprehensive functionality. Use it freely in your projects!
 
 This project demonstrates the SDD (Spec-Driven Development) approach - a methodology for rapid development using AI agents with structured prompts and templates. For more details on SDD, check out [SDDRush](https://github.com/chernistry/SDDRush).
 
@@ -56,7 +56,7 @@ npm run build
 ### VST3 Plugin Installation
 ```bash
 # Build the plugin (requires CMake and JUCE)
-cd native/vst3/TR808Garage
+cd native/vst3/CR717
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 
@@ -103,7 +103,7 @@ The web app features centralized state management, precise audio timing with <2m
 ### Development Workflow
 1. Clone the repository with submodules: `git clone --recursive`
 2. For web app: use standard npm workflow
-3. For VST3: use CMake to build native plugin from `native/vst3/TR808Garage/`
+3. For VST3: use CMake to build native plugin from `native/vst3/CR717/`
 
 ## License
 

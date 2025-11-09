@@ -9,7 +9,7 @@
 
 ## Objective
 
-Add swing/shuffle timing to make patterns groove. This is what makes TR-808 patterns feel alive.
+Add swing/shuffle timing to make patterns groove. This is what makes CR-717 patterns feel alive.
 
 ---
 

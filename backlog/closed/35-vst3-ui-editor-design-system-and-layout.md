@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3/AU UI — Design System, Layout, Theming (Modern Drum Machine)
 
@@ -6,7 +6,7 @@ Objective
 - Deliver a premium, modern drum‑machine UI for the native plugin (VST3 now; AU later) that closely matches the best paid VST instruments. Port the strongest design elements from the Web app to JUCE, with meticulous attention to every micro element, while keeping 60 fps and RT safety (no blocking audio thread).
 
 References
-- Best practices: /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/best_practices_vst.md
+- Best practices: /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/best_practices_vst.md
 - Web UI cues to port: tokens, step header (1–16), 4‑step grouping, LED pads, instrument color stripes, dark theme.
 
 Acceptance Criteria (DoD)

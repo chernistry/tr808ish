@@ -9,13 +9,13 @@
 
 ## Objective
 
-Multiple pattern slots (A-H) with chain mode to create full songs. Essential for real TR-808 workflow.
+Multiple pattern slots (A-H) with chain mode to create full songs. Essential for real CR-717 workflow.
 
 ---
 
 ## Background
 
-Original TR-808 has:
+Original CR-717 has:
 - 12 pattern banks (I/II) × 12 patterns = 24 total
 - Manual mode: play one pattern
 - Compose mode: chain patterns into songs

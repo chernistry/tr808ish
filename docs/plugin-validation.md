@@ -22,7 +22,7 @@ To validate the plugin after building:
 
 1. Build the plugin:
    ```bash
-   cd native/vst3/TR808Garage
+   cd native/vst3/CR717
    cmake -B build -DCMAKE_BUILD_TYPE=Release
    cmake --build build --config Release
    ```
@@ -34,7 +34,7 @@ To validate the plugin after building:
 
 Or run pluginval directly:
 ```bash
-pluginval --strictness-level 8 --validate "native/vst3/TR808Garage/build/TR808Garage_artefacts/Release/VST3/TR-808 Garage.vst3"
+pluginval --strictness-level 8 --validate "native/vst3/CR717/build/CR717_artefacts/Release/VST3/Cherni CR-717.vst3"
 ```
 
 ## Purpose

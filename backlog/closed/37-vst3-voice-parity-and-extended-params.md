@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 Voice Parity & Extended Parameters (All 12 Voices, Pro Controls)
 
@@ -32,8 +32,8 @@ Steps
    - Verify no clicks on param change; buffer size changes safe; CPU ≤ 3% @ 44.1k / 64–128 samples.
 
 Affected Files
-- native/vst3/TR808Garage/Source/{Voices, PluginProcessor, Params, Routing}.*
-- native/vst3/TR808Garage/Source/ui/VoiceParams.*
+- native/vst3/CR717/Source/{Voices, PluginProcessor, Params, Routing}.*
+- native/vst3/CR717/Source/ui/VoiceParams.*
 
 Risks & Mitigations
 - Too many params clutter UI → group & collapse advanced controls; provide sensible defaults.

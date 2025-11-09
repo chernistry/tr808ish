@@ -358,10 +358,10 @@ const initialState = store.getState();
 const initialPattern = initialState.bank.patterns[initialState.bank.currentPattern];
 if (initialPattern) {
   updateStatus(`Ready - Pattern ${initialState.bank.currentPattern}: ${initialPattern.name}`);
-  console.log(`TR-808 initialized - Pattern ${initialState.bank.currentPattern}: ${initialPattern.name} @ ${initialPattern.bpm} BPM`);
+  console.log(`CR-717 initialized - Pattern ${initialState.bank.currentPattern}: ${initialPattern.name} @ ${initialPattern.bpm} BPM`);
 } else {
   updateStatus('Ready');
-  console.log('TR-808 initialized');
+  console.log('CR-717 initialized');
 }
 requestAnimationFrame(updateFPS);
 

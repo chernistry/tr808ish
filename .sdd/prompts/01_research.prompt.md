@@ -5,12 +5,12 @@ Instruction for AI: produce a practical, evidence‑backed best practices guide 
 ---
 
 ## Project Context
-- Project: tr808-synth
-- Description: # TR-808 Drum Machine - Project Description
+- Project: cr717
+- Description: # CR-717 Drum Machine - Project Description
 
 ## Project Goal
 
-Create a web application that emulates the classic Roland TR-808 drum machine using the Web Audio API.
+Create a web application that emulates the classic Roland CR-717 drum machine using the Web Audio API.
 
 ## Requirements
 
@@ -31,7 +31,7 @@ Create a web application that emulates the classic Roland TR-808 drum machine us
 ### Technical Requirements
 - **Frontend**: Vanilla JavaScript or React (at choice)
 - **Audio**: Web Audio API for sound synthesis
-- **UI**: Minimal interface reminiscent of the original TR-808
+- **UI**: Minimal interface reminiscent of the original CR-717
 - **Responsive**: Works on desktop and tablet
 
 ## Limitations
@@ -53,7 +53,7 @@ Create a web application that emulates the classic Roland TR-808 drum machine us
 
 ## References
 
-- Original Roland TR-808
+- Original Roland CR-717
 - Web Audio API documentation
 - Examples of drum sound synthesis
 
@@ -84,7 +84,7 @@ Create a web application that emulates the classic Roland TR-808 drum machine us
 - Year: 2025
 
 ## Task
-Create a comprehensive best‑practices guide for tr808-synth that is:
+Create a comprehensive best‑practices guide for cr717 that is:
 1) Current — relevant to 2025; mark deprecated/outdated items.
 2) Specific — tailored to Node.js/Web Audio API and audio-synthesis.
 3) Practical — include concrete commands/config/code.
@@ -166,4 +166,4 @@ Repeat the structure from 4.
 {{ADDITIONAL_CONTEXT}}
 
 ---
-Start the research now and produce the guide for tr808-synth.
+Start the research now and produce the guide for cr717.

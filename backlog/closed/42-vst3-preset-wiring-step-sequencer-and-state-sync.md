@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 — Preset Wiring to Step Sequencer & State Sync
 
@@ -30,8 +30,8 @@ Steps
    - Serialize preset id + full pattern snapshot (for edited presets) in state blob. Verify recall across sample rate/buffer size.
 
 Affected Files
-- `native/vst3/TR808Garage/Source/{PresetManager, PluginProcessor, SequencerModel}.*`
-- `native/vst3/TR808Garage/Source/ui/{PatternBankBar, StepGrid}.*`
+- `native/vst3/CR717/Source/{PresetManager, PluginProcessor, SequencerModel}.*`
+- `native/vst3/CR717/Source/ui/{PatternBankBar, StepGrid}.*`
 
 Dependencies
 - 32 (parameters/state), 39 (preset content), 40 (MIDI export for DAW alignment).

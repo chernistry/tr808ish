@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 — Layout Refactor (Grid, Constraints, DPI) for Clean Composition
 
@@ -30,8 +30,8 @@ Steps
    - Visual pass across sizes; verify alignment; add debug overlay toggling grid (developer only).
 
 Affected Files
-- `native/vst3/TR808Garage/Source/ui/{Editor,HeaderBar,PatternBankBar,Main,FooterBar}.*`
-- `native/vst3/TR808Garage/Source/ui/style/Tokens.*`
+- `native/vst3/CR717/Source/ui/{Editor,HeaderBar,PatternBankBar,Main,FooterBar}.*`
+- `native/vst3/CR717/Source/ui/style/Tokens.*`
 
 Dependencies
 - 35 (design system), 33 (GUI base).

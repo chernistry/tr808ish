@@ -82,9 +82,9 @@ Add to `index.html`:
 ### 5. README.md
 
 ```markdown
-# TR-808 Drum Machine
+# CR-717 Drum Machine
 
-Web-based emulation of the classic Roland TR-808 drum machine.
+Web-based emulation of the classic Roland CR-717 drum machine.
 
 ## Features
 

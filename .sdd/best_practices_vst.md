@@ -1,4 +1,4 @@
-# Best Practices Guide — VST/AU инструмент в 2025 (для проекта tr808-synth)
+# Best Practices Guide — VST/AU инструмент в 2025 (для проекта cr717)
 
 ## 1. TL;DR
 

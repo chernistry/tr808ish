@@ -1,6 +1,6 @@
-# TR-808 Drum Machine - Architecture Specification
+# CR-717 Drum Machine - Architecture Specification
 
-**Project:** tr808-synth  
+**Project:** cr717  
 **Domain:** audio-synthesis  
 **Stack:** Node.js/Web Audio API  
 **Year:** 2025
@@ -466,7 +466,7 @@ npm run e2e         # Playwright E2E tests
 
 ---
 
-# TR-808 Architecture - Implementation Plan & Backlog
+# CR-717 Architecture - Implementation Plan & Backlog
 
 ## Affected Modules/Files
 
@@ -569,7 +569,7 @@ playwright.config.ts           # Playwright config
 - ✅ `npm run e2e` runs E2E tests
 
 **Steps:**
-1. `npm create vite@latest tr808-synth -- --template vanilla-ts`
+1. `npm create vite@latest cr717 -- --template vanilla-ts`
 2. Install dependencies: `vitest`, `@playwright/test`, `eslint`, `prettier`
 3. Create config files: `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`
 4. Setup project structure: `src/`, `tests/`, `public/`

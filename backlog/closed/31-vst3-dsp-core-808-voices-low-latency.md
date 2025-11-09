@@ -1,4 +1,4 @@
-Read /Users/sasha/IdeaProjects/personal_projects/tr808-synth/.sdd/coding_rules.md first
+Read /Users/sasha/IdeaProjects/personal_projects/cr717/.sdd/coding_rules.md first
 
 # VST3 DSP Core — 808 Voices (Low-Latency, RT-Safe)
 
@@ -17,7 +17,7 @@ Acceptance Criteria (DoD)
 
 Steps
 1) Assets
-   - Place samples under `native/vst3/TR808Garage/Resources/808/` (document licensing/source) and embed as BinaryData or load once on prepareToPlay.
+   - Place samples under `native/vst3/CR717/Resources/808/` (document licensing/source) and embed as BinaryData or load once on prepareToPlay.
 2) Voice engine
    - Implement Voice classes per instrument with envelope, tune (resampling), simple tone filter. Precompute resample ratios; no per-sample heap.
 3) Parameter smoothing
@@ -28,8 +28,8 @@ Steps
    - Monitor buffer under/overruns; verify thread-safety; run static analysis if available.
 
 Affected Files
-- `native/vst3/TR808Garage/Source/*` (Voice classes, Processor, BinaryData)
-- `native/vst3/TR808Garage/Resources/808/*`
+- `native/vst3/CR717/Source/*` (Voice classes, Processor, BinaryData)
+- `native/vst3/CR717/Resources/808/*`
 
 Risks & Mitigations
 - Sample licensing → use free 808 sets with permissive licenses or synthesize later.

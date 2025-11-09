@@ -3,7 +3,7 @@
 Instruction for AI: produce pragmatic coding rules for the project.
 
 Context:
-- Project: tr808-synth
+- Project: cr717
 - Stack: Node.js/Web Audio API
 - Domain: audio-synthesis
 - Year: 2025
