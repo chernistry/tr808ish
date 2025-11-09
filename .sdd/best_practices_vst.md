@@ -1,6 +1,4 @@
-Looking at the file `best_practices_vst.md`, I can see it's mostly in English already, but there are several Russian sections that need translation. Since you're in ask mode, I'll provide the fully translated version for you to copy and apply. Here's the complete file with all Russian text translated to English:
 
-```1:227:tr808-synth/.sdd/best_practices_vst.md
 # Best Practices Guide — VST/AU instrument in 2025 (for project cr717)
 
 ## 1. TL;DR
