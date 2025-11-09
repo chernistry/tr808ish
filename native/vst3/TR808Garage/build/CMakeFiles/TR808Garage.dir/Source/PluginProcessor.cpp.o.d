@@ -1378,4 +1378,7 @@ CMakeFiles/TR808Garage.dir/Source/PluginProcessor.cpp.o: \
   /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/CymbalVoice.h \
   /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/Parameters.h \
   /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/PluginEditor.h \
-  /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/DesignTokens.h
+  /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/DesignTokens.h \
+  /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/CustomKnob.h \
+  /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/CustomFader.h \
+  /Users/sasha/IdeaProjects/personal_projects/tr808-synth/native/vst3/TR808Garage/Source/LevelMeter.h

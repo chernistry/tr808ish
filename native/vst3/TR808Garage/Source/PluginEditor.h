@@ -3,6 +3,9 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
 #include "DesignTokens.h"
+#include "CustomKnob.h"
+#include "CustomFader.h"
+#include "LevelMeter.h"
 
 class TR808GarageEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
@@ -33,21 +36,24 @@ private:
     // Parameter attachments
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     
-    // Master
-    juce::Slider masterLevelSlider;
+    // Master with meter
+    CustomFader masterLevelSlider;
     std::unique_ptr<SliderAttachment> masterLevelAttachment;
     juce::Label masterLevelLabel;
+    LevelMeter masterMeter;
     
-    // Voice controls
+    // Voice controls with custom knobs
     struct VoiceControls {
         juce::String name;
         juce::Colour color;
         juce::Label nameLabel;
-        juce::Slider levelSlider, tuneSlider, decaySlider, toneSlider;
+        CustomKnob levelSlider, tuneSlider, decaySlider, toneSlider;
         std::unique_ptr<SliderAttachment> levelAttachment, tuneAttachment, decayAttachment, toneAttachment;
+        LevelMeter meter;
     };
     
-    VoiceControls bdControls, sdControls, chControls, ohControls, cpControls, rsControls;
+    VoiceControls bdControls, sdControls, ltControls, mtControls, htControls, rsControls,
+                  cpControls, chControls, ohControls, cyControls, rdControls, cbControls;
 
     void setupVoiceControls(VoiceControls& vc, const juce::String& name, juce::Colour color,
                            const char* levelID, const char* tuneID, 

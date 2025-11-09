@@ -37,6 +37,10 @@ target_sources(TR808Garage PRIVATE
     Source/PluginEditor.h
     Source/Parameters.h
     Source/DesignTokens.h
+    Source/CustomKnob.h
+    Source/CustomFader.h
+    Source/LevelMeter.h
+    Source/LEDPad.h
     Source/Voice.h
     Source/BassDrumVoice.h
     Source/SnareDrumVoice.h

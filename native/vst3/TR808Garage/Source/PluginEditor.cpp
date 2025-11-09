@@ -5,9 +5,9 @@ using namespace DesignTokens;
 TR808GarageEditor::TR808GarageEditor(TR808GarageProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
 {
-    setSize(1100, 620);
+    setSize(1100, 720);
     setResizable(true, true);
-    setResizeLimits(1100, 620, 1650, 930);
+    setResizeLimits(1100, 720, 1650, 1080);
     
     // Pattern bank buttons
     const char* patternNames[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -49,35 +49,32 @@ TR808GarageEditor::TR808GarageEditor(TR808GarageProcessor& p)
     themeButton.setColour(juce::TextButton::textColourOffId, Colors::textSecondary);
     addAndMakeVisible(themeButton);
     
-    // Master level
+    // Master level with meter
     masterLevelLabel.setText("Master", juce::dontSendNotification);
     masterLevelLabel.setJustificationType(juce::Justification::centred);
     masterLevelLabel.setColour(juce::Label::textColourId, Colors::textPrimary);
     masterLevelLabel.setFont(juce::Font(Typography::md));
     addAndMakeVisible(masterLevelLabel);
     
-    masterLevelSlider.setSliderStyle(juce::Slider::LinearVertical);
-    masterLevelSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-    masterLevelSlider.setColour(juce::Slider::trackColourId, Colors::bgTertiary);
-    masterLevelSlider.setColour(juce::Slider::thumbColourId, Colors::accent);
-    masterLevelSlider.setColour(juce::Slider::textBoxTextColourId, Colors::textSecondary);
     addAndMakeVisible(masterLevelSlider);
     masterLevelAttachment = std::make_unique<SliderAttachment>(
         processor.getAPVTS(), ParamIDs::masterLevel, masterLevelSlider);
     
-    // Voice controls with colors
-    setupVoiceControls(bdControls, "BD", Colors::instBD, ParamIDs::bdLevel, ParamIDs::bdTune, 
-                      ParamIDs::bdDecay, ParamIDs::bdTone);
-    setupVoiceControls(sdControls, "SD", Colors::instSD, ParamIDs::sdLevel, ParamIDs::sdTune, 
-                      ParamIDs::sdDecay, ParamIDs::sdSnappy);
-    setupVoiceControls(chControls, "CH", Colors::instHH, ParamIDs::chLevel, nullptr, 
-                      nullptr, ParamIDs::chTone);
-    setupVoiceControls(ohControls, "OH", Colors::instHH, ParamIDs::ohLevel, nullptr, 
-                      ParamIDs::ohDecay, ParamIDs::ohTone);
-    setupVoiceControls(cpControls, "CP", Colors::instCP, ParamIDs::cpLevel, nullptr, 
-                      nullptr, ParamIDs::cpTone);
-    setupVoiceControls(rsControls, "RS", Colors::instRS, ParamIDs::rsLevel, ParamIDs::rsTune, 
-                      nullptr, nullptr);
+    addAndMakeVisible(masterMeter);
+    
+    // Setup all 12 voices
+    setupVoiceControls(bdControls, "BD", Colors::instBD, ParamIDs::bdLevel, ParamIDs::bdTune, ParamIDs::bdDecay, ParamIDs::bdTone);
+    setupVoiceControls(sdControls, "SD", Colors::instSD, ParamIDs::sdLevel, ParamIDs::sdTune, ParamIDs::sdDecay, ParamIDs::sdSnappy);
+    setupVoiceControls(ltControls, "LT", Colors::instTom, ParamIDs::ltLevel, ParamIDs::ltTune, ParamIDs::ltDecay, nullptr);
+    setupVoiceControls(mtControls, "MT", Colors::instTom, ParamIDs::mtLevel, ParamIDs::mtTune, ParamIDs::mtDecay, nullptr);
+    setupVoiceControls(htControls, "HT", Colors::instTom, ParamIDs::htLevel, ParamIDs::htTune, ParamIDs::htDecay, nullptr);
+    setupVoiceControls(rsControls, "RS", Colors::instRS, ParamIDs::rsLevel, ParamIDs::rsTune, nullptr, nullptr);
+    setupVoiceControls(cpControls, "CP", Colors::instCP, ParamIDs::cpLevel, nullptr, nullptr, ParamIDs::cpTone);
+    setupVoiceControls(chControls, "CH", Colors::instHH, ParamIDs::chLevel, nullptr, nullptr, ParamIDs::chTone);
+    setupVoiceControls(ohControls, "OH", Colors::instHH, ParamIDs::ohLevel, nullptr, ParamIDs::ohDecay, ParamIDs::ohTone);
+    setupVoiceControls(cyControls, "CY", Colors::instCY, ParamIDs::cyLevel, nullptr, ParamIDs::cyDecay, ParamIDs::cyTone);
+    setupVoiceControls(rdControls, "RD", Colors::instCY, ParamIDs::rdLevel, nullptr, nullptr, ParamIDs::rdTone);
+    setupVoiceControls(cbControls, "CB", Colors::instRS, ParamIDs::cbLevel, ParamIDs::cbTune, nullptr, nullptr);
     
     startTimerHz(60);
 }
@@ -100,16 +97,9 @@ void TR808GarageEditor::setupVoiceControls(VoiceControls& vc, const juce::String
     vc.nameLabel.setFont(juce::Font(Typography::lg, juce::Font::bold));
     addAndMakeVisible(vc.nameLabel);
     
-    auto setupSlider = [this](juce::Slider& slider, const char* paramID, 
+    auto setupSlider = [this](CustomKnob& slider, const char* paramID, 
                              std::unique_ptr<SliderAttachment>& attachment) {
         if (paramID == nullptr) return;
-        
-        slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 16);
-        slider.setColour(juce::Slider::rotarySliderFillColourId, Colors::accent);
-        slider.setColour(juce::Slider::thumbColourId, Colors::textPrimary);
-        slider.setColour(juce::Slider::textBoxTextColourId, Colors::textSecondary);
-        slider.setColour(juce::Slider::trackColourId, Colors::bgTertiary);
         addAndMakeVisible(slider);
         attachment = std::make_unique<SliderAttachment>(processor.getAPVTS(), paramID, slider);
     };
@@ -118,6 +108,8 @@ void TR808GarageEditor::setupVoiceControls(VoiceControls& vc, const juce::String
     setupSlider(vc.tuneSlider, tuneID, vc.tuneAttachment);
     setupSlider(vc.decaySlider, decayID, vc.decayAttachment);
     setupSlider(vc.toneSlider, toneID, vc.toneAttachment);
+    
+    addAndMakeVisible(vc.meter);
 }
 
 void TR808GarageEditor::paint(juce::Graphics& g)
@@ -172,24 +164,20 @@ void TR808GarageEditor::paintVoiceSection(juce::Graphics& g, juce::Rectangle<int
     
     int voiceY = area.getY() + Spacing::md;
     int voiceHeight = 140;
-    int voiceWidth = (area.getWidth() - Spacing::md * 4) / 3;
+    int voiceWidth = (area.getWidth() - Spacing::md * 5 - 120) / 4; // 4 columns
     
-    for (int i = 0; i < 6; ++i)
+    VoiceControls* allVoices[] = {&bdControls, &sdControls, &ltControls, &mtControls,
+                                   &htControls, &rsControls, &cpControls, &chControls,
+                                   &ohControls, &cyControls, &rdControls, &cbControls};
+    
+    for (int i = 0; i < 12; ++i)
     {
-        int col = i % 3;
-        int row = i / 3;
+        int col = i % 4;
+        int row = i / 4;
         int x = area.getX() + Spacing::md + col * (voiceWidth + Spacing::md);
         int y = voiceY + row * (voiceHeight + Spacing::md);
         
-        juce::Colour color = Colors::accent;
-        if (i == 0) color = Colors::instBD;
-        else if (i == 1) color = Colors::instSD;
-        else if (i == 2) color = Colors::instHH;
-        else if (i == 3) color = Colors::instHH;
-        else if (i == 4) color = Colors::instCP;
-        else if (i == 5) color = Colors::instRS;
-        
-        drawVoicePanel(juce::Rectangle<int>(x, y, voiceWidth, voiceHeight), color);
+        drawVoicePanel(juce::Rectangle<int>(x, y, voiceWidth, voiceHeight), allVoices[i]->color);
     }
 }
 
@@ -241,33 +229,44 @@ void TR808GarageEditor::resized()
     // Master (right side)
     int masterX = getWidth() - 100 - Spacing::md;
     masterLevelLabel.setBounds(masterX, bounds.getY() + Spacing::md, 100, 20);
-    masterLevelSlider.setBounds(masterX, bounds.getY() + Spacing::md + 25, 100, 150);
+    masterLevelSlider.setBounds(masterX + 20, bounds.getY() + Spacing::md + 25, 60, 150);
+    masterMeter.setBounds(masterX, bounds.getY() + Spacing::md + 25, 15, 150);
     
-    // Voice controls
+    // Voice controls in 4x3 grid
     auto layoutVoice = [&](VoiceControls& vc, int col, int row) {
-        int voiceWidth = (bounds.getWidth() - Spacing::md * 4 - 120) / 3;
+        int voiceWidth = (bounds.getWidth() - Spacing::md * 5 - 120) / 4;
         int voiceHeight = 140;
         int x = bounds.getX() + Spacing::md + col * (voiceWidth + Spacing::md);
         int y = bounds.getY() + Spacing::md + row * (voiceHeight + Spacing::md);
         
         vc.nameLabel.setBounds(x + 10, y + Spacing::sm, voiceWidth - 20, 25);
+        vc.meter.setBounds(x + 5, y + 40, 8, 90);
         
         int knobY = y + 40;
-        int knobSpacing = 55;
-        int knobX = x + 10;
+        int knobSpacing = 50;
+        int knobX = x + 20;
         
-        if (vc.levelAttachment) vc.levelSlider.setBounds(knobX, knobY, 50, 70);
-        if (vc.tuneAttachment) vc.tuneSlider.setBounds(knobX + knobSpacing, knobY, 50, 70);
-        if (vc.decayAttachment) vc.decaySlider.setBounds(knobX + knobSpacing * 2, knobY, 50, 70);
-        if (vc.toneAttachment) vc.toneSlider.setBounds(knobX + knobSpacing * 3, knobY, 50, 70);
+        if (vc.levelAttachment) vc.levelSlider.setBounds(knobX, knobY, 45, 70);
+        if (vc.tuneAttachment) vc.tuneSlider.setBounds(knobX + knobSpacing, knobY, 45, 70);
+        if (vc.decayAttachment) vc.decaySlider.setBounds(knobX + knobSpacing * 2, knobY, 45, 70);
+        if (vc.toneAttachment) vc.toneSlider.setBounds(knobX + knobSpacing * 3, knobY, 45, 70);
     };
     
+    // Layout all 12 voices in 4x3 grid
     layoutVoice(bdControls, 0, 0);
     layoutVoice(sdControls, 1, 0);
-    layoutVoice(chControls, 2, 0);
-    layoutVoice(ohControls, 0, 1);
-    layoutVoice(cpControls, 1, 1);
-    layoutVoice(rsControls, 2, 1);
+    layoutVoice(ltControls, 2, 0);
+    layoutVoice(mtControls, 3, 0);
+    
+    layoutVoice(htControls, 0, 1);
+    layoutVoice(rsControls, 1, 1);
+    layoutVoice(cpControls, 2, 1);
+    layoutVoice(chControls, 3, 1);
+    
+    layoutVoice(ohControls, 0, 2);
+    layoutVoice(cyControls, 1, 2);
+    layoutVoice(rdControls, 2, 2);
+    layoutVoice(cbControls, 3, 2);
 }
 
 void TR808GarageEditor::timerCallback()
@@ -279,4 +278,7 @@ void TR808GarageEditor::timerCallback()
         selectedPattern = currentProgram;
         repaint();
     }
+    
+    // Update meters (placeholder - would need actual level data from processor)
+    masterMeter.setLevel(0.5f);
 }
