@@ -8,6 +8,9 @@
 #include "TomVoice.h"
 #include "CymbalVoice.h"
 #include "Parameters.h"
+#include "Reverb.h"
+#include "Delay.h"
+#include "MasterDynamics.h"
 
 class TR808GarageProcessor : public juce::AudioProcessor
 {
@@ -60,10 +63,17 @@ private:
     double hostBPM = 120.0;
     bool hostIsPlaying = false;
     int currentPreset = 0;
+    
+    // FX
+    AlgorithmicReverb reverb;
+    TempoSyncDelay delay;
+    MasterDynamics masterDynamics;
+    juce::AudioBuffer<float> reverbBuffer, delayBuffer, voiceBuffer;
 
     void handleMidiMessage(const juce::MidiMessage& msg);
     Voice* getVoiceForNote(int noteNumber);
     void updateVoiceParameters();
+    void updateFXParameters();
     void loadPreset(int index);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TR808GarageProcessor)

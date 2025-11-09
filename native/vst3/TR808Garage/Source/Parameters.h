@@ -76,6 +76,50 @@ namespace ParamIDs
     
     // Hi-hat choke
     inline constexpr auto hhChoke = "hhChoke";
+    
+    // FX Sends (per voice)
+    inline constexpr auto bdSendA = "bdSendA";
+    inline constexpr auto bdSendB = "bdSendB";
+    inline constexpr auto sdSendA = "sdSendA";
+    inline constexpr auto sdSendB = "sdSendB";
+    inline constexpr auto ltSendA = "ltSendA";
+    inline constexpr auto ltSendB = "ltSendB";
+    inline constexpr auto mtSendA = "mtSendA";
+    inline constexpr auto mtSendB = "mtSendB";
+    inline constexpr auto htSendA = "htSendA";
+    inline constexpr auto htSendB = "htSendB";
+    inline constexpr auto rsSendA = "rsSendA";
+    inline constexpr auto rsSendB = "rsSendB";
+    inline constexpr auto cpSendA = "cpSendA";
+    inline constexpr auto cpSendB = "cpSendB";
+    inline constexpr auto chSendA = "chSendA";
+    inline constexpr auto chSendB = "chSendB";
+    inline constexpr auto ohSendA = "ohSendA";
+    inline constexpr auto ohSendB = "ohSendB";
+    inline constexpr auto cySendA = "cySendA";
+    inline constexpr auto cySendB = "cySendB";
+    inline constexpr auto rdSendA = "rdSendA";
+    inline constexpr auto rdSendB = "rdSendB";
+    inline constexpr auto cbSendA = "cbSendA";
+    inline constexpr auto cbSendB = "cbSendB";
+    
+    // Reverb
+    inline constexpr auto reverbSize = "reverbSize";
+    inline constexpr auto reverbDamp = "reverbDamp";
+    inline constexpr auto reverbWidth = "reverbWidth";
+    inline constexpr auto reverbWet = "reverbWet";
+    
+    // Delay
+    inline constexpr auto delayTime = "delayTime";
+    inline constexpr auto delayFeedback = "delayFeedback";
+    inline constexpr auto delayWet = "delayWet";
+    
+    // Master Dynamics
+    inline constexpr auto compThreshold = "compThreshold";
+    inline constexpr auto compRatio = "compRatio";
+    inline constexpr auto compEnabled = "compEnabled";
+    inline constexpr auto limiterThreshold = "limiterThreshold";
+    inline constexpr auto limiterEnabled = "limiterEnabled";
 }
 
 inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
@@ -155,6 +199,50 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     
     // Hi-hat choke
     layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::hhChoke, 1}, "HH Choke", true));
+    
+    // FX Sends (all 12 voices)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdSendA, 1}, "BD Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.2f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdSendB, 1}, "BD Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdSendA, 1}, "SD Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdSendB, 1}, "SD Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ltSendA, 1}, "LT Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.15f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ltSendB, 1}, "LT Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::mtSendA, 1}, "MT Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.15f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::mtSendB, 1}, "MT Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::htSendA, 1}, "HT Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.15f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::htSendB, 1}, "HT Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::rsSendA, 1}, "RS Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::rsSendB, 1}, "RS Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cpSendA, 1}, "CP Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.25f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cpSendB, 1}, "CP Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.05f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chSendA, 1}, "CH Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.05f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chSendB, 1}, "CH Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohSendA, 1}, "OH Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.2f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohSendB, 1}, "OH Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cySendA, 1}, "CY Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cySendB, 1}, "CY Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::rdSendA, 1}, "RD Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.2f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::rdSendB, 1}, "RD Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cbSendA, 1}, "CB Reverb", juce::NormalisableRange<float>(0.0f, 1.0f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cbSendB, 1}, "CB Delay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    
+    // Reverb
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbSize, 1}, "Reverb Size", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbDamp, 1}, "Reverb Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbWidth, 1}, "Reverb Width", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbWet, 1}, "Reverb Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    
+    // Delay
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayTime, 1}, "Delay Time", juce::NormalisableRange<float>(0.125f, 1.0f), 0.25f)); // 1/8 to 1 beat
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayFeedback, 1}, "Delay Feedback", juce::NormalisableRange<float>(0.0f, 0.9f), 0.4f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayWet, 1}, "Delay Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    
+    // Master Dynamics
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compThreshold, 1}, "Comp Threshold", juce::NormalisableRange<float>(-24.0f, 0.0f), -12.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compRatio, 1}, "Comp Ratio", juce::NormalisableRange<float>(1.0f, 10.0f), 3.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::compEnabled, 1}, "Comp Enabled", true));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::limiterThreshold, 1}, "Limiter Threshold", juce::NormalisableRange<float>(-6.0f, 0.0f), -0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::limiterEnabled, 1}, "Limiter Enabled", true));
     
     return layout;
 }

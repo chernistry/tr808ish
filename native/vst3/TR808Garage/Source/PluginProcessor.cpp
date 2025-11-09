@@ -27,6 +27,15 @@ void TR808GarageProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     cymbal.prepare(sampleRate, samplesPerBlock);
     ride.prepare(sampleRate, samplesPerBlock);
     cowbell.prepare(sampleRate, samplesPerBlock);
+    
+    // FX
+    reverb.prepare(sampleRate, samplesPerBlock);
+    delay.prepare(sampleRate, samplesPerBlock);
+    masterDynamics.prepare(sampleRate, samplesPerBlock);
+    
+    reverbBuffer.setSize(2, samplesPerBlock);
+    delayBuffer.setSize(2, samplesPerBlock);
+    voiceBuffer.setSize(2, samplesPerBlock);
 }
 
 void TR808GarageProcessor::releaseResources()
@@ -74,19 +83,61 @@ void TR808GarageProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 
     // Render all active voices
     int numSamples = buffer.getNumSamples();
+    reverbBuffer.clear();
+    delayBuffer.clear();
     
-    if (bassDrum.isActive()) bassDrum.renderNextBlock(buffer, 0, numSamples);
-    if (snareDrum.isActive()) snareDrum.renderNextBlock(buffer, 0, numSamples);
-    if (lowTom.isActive()) lowTom.renderNextBlock(buffer, 0, numSamples);
-    if (midTom.isActive()) midTom.renderNextBlock(buffer, 0, numSamples);
-    if (highTom.isActive()) highTom.renderNextBlock(buffer, 0, numSamples);
-    if (rimShot.isActive()) rimShot.renderNextBlock(buffer, 0, numSamples);
-    if (clap.isActive()) clap.renderNextBlock(buffer, 0, numSamples);
-    if (closedHat.isActive()) closedHat.renderNextBlock(buffer, 0, numSamples);
-    if (openHat.isActive()) openHat.renderNextBlock(buffer, 0, numSamples);
-    if (cymbal.isActive()) cymbal.renderNextBlock(buffer, 0, numSamples);
-    if (ride.isActive()) ride.renderNextBlock(buffer, 0, numSamples);
-    if (cowbell.isActive()) cowbell.renderNextBlock(buffer, 0, numSamples);
+    // Helper lambda to render voice with sends
+    auto renderVoiceWithSends = [&](Voice& voice, const char* sendAID, const char* sendBID) {
+        if (voice.isActive()) {
+            voiceBuffer.clear();
+            voice.renderNextBlock(voiceBuffer, 0, numSamples);
+            
+            float sendA = apvts.getRawParameterValue(sendAID)->load();
+            float sendB = apvts.getRawParameterValue(sendBID)->load();
+            
+            // Add to main mix
+            for (int ch = 0; ch < 2; ++ch) {
+                buffer.addFrom(ch, 0, voiceBuffer, ch, 0, numSamples);
+                reverbBuffer.addFrom(ch, 0, voiceBuffer, ch, 0, numSamples, sendA);
+                delayBuffer.addFrom(ch, 0, voiceBuffer, ch, 0, numSamples, sendB);
+            }
+        }
+    };
+    
+    renderVoiceWithSends(bassDrum, ParamIDs::bdSendA, ParamIDs::bdSendB);
+    renderVoiceWithSends(snareDrum, ParamIDs::sdSendA, ParamIDs::sdSendB);
+    renderVoiceWithSends(lowTom, ParamIDs::ltSendA, ParamIDs::ltSendB);
+    renderVoiceWithSends(midTom, ParamIDs::mtSendA, ParamIDs::mtSendB);
+    renderVoiceWithSends(highTom, ParamIDs::htSendA, ParamIDs::htSendB);
+    renderVoiceWithSends(rimShot, ParamIDs::rsSendA, ParamIDs::rsSendB);
+    renderVoiceWithSends(clap, ParamIDs::cpSendA, ParamIDs::cpSendB);
+    renderVoiceWithSends(closedHat, ParamIDs::chSendA, ParamIDs::chSendB);
+    renderVoiceWithSends(openHat, ParamIDs::ohSendA, ParamIDs::ohSendB);
+    renderVoiceWithSends(cymbal, ParamIDs::cySendA, ParamIDs::cySendB);
+    renderVoiceWithSends(ride, ParamIDs::rdSendA, ParamIDs::rdSendB);
+    renderVoiceWithSends(cowbell, ParamIDs::cbSendA, ParamIDs::cbSendB);
+
+    // Update FX parameters
+    updateFXParameters();
+
+    // Process FX buses
+    reverb.process(reverbBuffer);
+    delay.process(delayBuffer);
+    
+    // Mix FX returns
+    float reverbWet = apvts.getRawParameterValue(ParamIDs::reverbWet)->load();
+    float delayWet = apvts.getRawParameterValue(ParamIDs::delayWet)->load();
+    
+    for (int ch = 0; ch < 2; ++ch)
+    {
+        buffer.addFrom(ch, 0, reverbBuffer, ch, 0, numSamples, reverbWet);
+        buffer.addFrom(ch, 0, delayBuffer, ch, 0, numSamples, delayWet);
+    }
+
+    // Master dynamics
+    bool compEnabled = apvts.getRawParameterValue(ParamIDs::compEnabled)->load() > 0.5f;
+    bool limiterEnabled = apvts.getRawParameterValue(ParamIDs::limiterEnabled)->load() > 0.5f;
+    masterDynamics.process(buffer, compEnabled, limiterEnabled);
 
     // Apply master level
     float masterLevel = apvts.getRawParameterValue(ParamIDs::masterLevel)->load();
@@ -98,31 +149,94 @@ void TR808GarageProcessor::updateVoiceParameters()
     // Bass Drum
     bassDrum.setLevel(apvts.getRawParameterValue(ParamIDs::bdLevel)->load());
     bassDrum.setTune(apvts.getRawParameterValue(ParamIDs::bdTune)->load());
+    bassDrum.setFineTune(apvts.getRawParameterValue(ParamIDs::bdFineTune)->load());
     bassDrum.setDecay(apvts.getRawParameterValue(ParamIDs::bdDecay)->load());
     bassDrum.setTone(apvts.getRawParameterValue(ParamIDs::bdTone)->load());
+    bassDrum.setPan(apvts.getRawParameterValue(ParamIDs::bdPan)->load());
     
     // Snare Drum
     snareDrum.setLevel(apvts.getRawParameterValue(ParamIDs::sdLevel)->load());
     snareDrum.setTune(apvts.getRawParameterValue(ParamIDs::sdTune)->load());
+    snareDrum.setFineTune(apvts.getRawParameterValue(ParamIDs::sdFineTune)->load());
     snareDrum.setDecay(apvts.getRawParameterValue(ParamIDs::sdDecay)->load());
     snareDrum.setTone(apvts.getRawParameterValue(ParamIDs::sdSnappy)->load());
+    snareDrum.setPan(apvts.getRawParameterValue(ParamIDs::sdPan)->load());
+    
+    // Toms
+    lowTom.setLevel(apvts.getRawParameterValue(ParamIDs::ltLevel)->load());
+    lowTom.setTune(apvts.getRawParameterValue(ParamIDs::ltTune)->load());
+    lowTom.setFineTune(apvts.getRawParameterValue(ParamIDs::ltFineTune)->load());
+    lowTom.setDecay(apvts.getRawParameterValue(ParamIDs::ltDecay)->load());
+    lowTom.setPan(apvts.getRawParameterValue(ParamIDs::ltPan)->load());
+    
+    midTom.setLevel(apvts.getRawParameterValue(ParamIDs::mtLevel)->load());
+    midTom.setTune(apvts.getRawParameterValue(ParamIDs::mtTune)->load());
+    midTom.setFineTune(apvts.getRawParameterValue(ParamIDs::mtFineTune)->load());
+    midTom.setDecay(apvts.getRawParameterValue(ParamIDs::mtDecay)->load());
+    midTom.setPan(apvts.getRawParameterValue(ParamIDs::mtPan)->load());
+    
+    highTom.setLevel(apvts.getRawParameterValue(ParamIDs::htLevel)->load());
+    highTom.setTune(apvts.getRawParameterValue(ParamIDs::htTune)->load());
+    highTom.setFineTune(apvts.getRawParameterValue(ParamIDs::htFineTune)->load());
+    highTom.setDecay(apvts.getRawParameterValue(ParamIDs::htDecay)->load());
+    highTom.setPan(apvts.getRawParameterValue(ParamIDs::htPan)->load());
     
     // Closed Hi-Hat
     closedHat.setLevel(apvts.getRawParameterValue(ParamIDs::chLevel)->load());
     closedHat.setTone(apvts.getRawParameterValue(ParamIDs::chTone)->load());
+    closedHat.setPan(apvts.getRawParameterValue(ParamIDs::chPan)->load());
     
     // Open Hi-Hat
     openHat.setLevel(apvts.getRawParameterValue(ParamIDs::ohLevel)->load());
     openHat.setDecay(apvts.getRawParameterValue(ParamIDs::ohDecay)->load());
     openHat.setTone(apvts.getRawParameterValue(ParamIDs::ohTone)->load());
+    openHat.setPan(apvts.getRawParameterValue(ParamIDs::ohPan)->load());
     
     // Clap
     clap.setLevel(apvts.getRawParameterValue(ParamIDs::cpLevel)->load());
     clap.setTone(apvts.getRawParameterValue(ParamIDs::cpTone)->load());
+    clap.setPan(apvts.getRawParameterValue(ParamIDs::cpPan)->load());
     
     // Rim Shot
     rimShot.setLevel(apvts.getRawParameterValue(ParamIDs::rsLevel)->load());
     rimShot.setTune(apvts.getRawParameterValue(ParamIDs::rsTune)->load());
+    rimShot.setPan(apvts.getRawParameterValue(ParamIDs::rsPan)->load());
+    
+    // Cymbal
+    cymbal.setLevel(apvts.getRawParameterValue(ParamIDs::cyLevel)->load());
+    cymbal.setDecay(apvts.getRawParameterValue(ParamIDs::cyDecay)->load());
+    cymbal.setTone(apvts.getRawParameterValue(ParamIDs::cyTone)->load());
+    cymbal.setPan(apvts.getRawParameterValue(ParamIDs::cyPan)->load());
+    
+    // Ride
+    ride.setLevel(apvts.getRawParameterValue(ParamIDs::rdLevel)->load());
+    ride.setTone(apvts.getRawParameterValue(ParamIDs::rdTone)->load());
+    ride.setPan(apvts.getRawParameterValue(ParamIDs::rdPan)->load());
+    
+    // Cowbell
+    cowbell.setLevel(apvts.getRawParameterValue(ParamIDs::cbLevel)->load());
+    cowbell.setTune(apvts.getRawParameterValue(ParamIDs::cbTune)->load());
+    cowbell.setPan(apvts.getRawParameterValue(ParamIDs::cbPan)->load());
+}
+
+void TR808GarageProcessor::updateFXParameters()
+{
+    // Reverb
+    reverb.setRoomSize(apvts.getRawParameterValue(ParamIDs::reverbSize)->load());
+    reverb.setDamping(apvts.getRawParameterValue(ParamIDs::reverbDamp)->load());
+    reverb.setWidth(apvts.getRawParameterValue(ParamIDs::reverbWidth)->load());
+    reverb.setWetLevel(apvts.getRawParameterValue(ParamIDs::reverbWet)->load());
+    
+    // Delay
+    float delayBeats = apvts.getRawParameterValue(ParamIDs::delayTime)->load();
+    delay.setDelayTime(delayBeats, hostBPM);
+    delay.setFeedback(apvts.getRawParameterValue(ParamIDs::delayFeedback)->load());
+    delay.setWetLevel(apvts.getRawParameterValue(ParamIDs::delayWet)->load());
+    
+    // Master Dynamics
+    masterDynamics.setCompressorThreshold(apvts.getRawParameterValue(ParamIDs::compThreshold)->load());
+    masterDynamics.setCompressorRatio(apvts.getRawParameterValue(ParamIDs::compRatio)->load());
+    masterDynamics.setLimiterThreshold(apvts.getRawParameterValue(ParamIDs::limiterThreshold)->load());
 }
 
 void TR808GarageProcessor::handleMidiMessage(const juce::MidiMessage& msg)
