@@ -5,6 +5,8 @@
 class TempoSyncDelay
 {
 public:
+    enum StereoMode { Mono, PingPong, Stereo };
+    
     void prepare(double sampleRate, int maxBlockSize)
     {
         this->sampleRate = sampleRate;
@@ -14,6 +16,7 @@ public:
         delayLineR.resize(maxDelaySamples, 0.0f);
         
         writePos = 0;
+        lfoPhase = 0.0f;
         
         lpFilter.setCoefficients(juce::IIRCoefficients::makeLowPass(sampleRate, 8000.0));
         hpFilter.setCoefficients(juce::IIRCoefficients::makeHighPass(sampleRate, 200.0));
@@ -37,6 +40,17 @@ public:
         wetLevel = juce::jlimit(0.0f, 1.0f, wet);
     }
 
+    void setStereoMode(StereoMode mode)
+    {
+        stereoMode = mode;
+    }
+
+    void setModulation(float rateHz, float depthMs)
+    {
+        modRate = juce::jlimit(0.1f, 5.0f, rateHz);
+        modDepth = juce::jlimit(0.0f, 10.0f, depthMs);
+    }
+
     void process(juce::AudioBuffer<float>& buffer)
     {
         auto* leftChannel = buffer.getWritePointer(0);
@@ -45,10 +59,19 @@ public:
 
         for (int i = 0; i < numSamples; ++i)
         {
-            // Read from delay line
-            int readPos = (writePos - delaySamples + delayLineL.size()) % delayLineL.size();
-            float delayedL = delayLineL[readPos];
-            float delayedR = delayLineR[readPos];
+            // LFO for modulation
+            float lfo = std::sin(lfoPhase * juce::MathConstants<float>::twoPi);
+            lfoPhase += modRate / sampleRate;
+            if (lfoPhase >= 1.0f) lfoPhase -= 1.0f;
+            
+            float modOffset = lfo * modDepth * 0.001f * sampleRate;
+            
+            // Read from delay line with modulation
+            int baseReadPos = (writePos - delaySamples + delayLineL.size()) % delayLineL.size();
+            int modReadPos = (baseReadPos + static_cast<int>(modOffset) + delayLineL.size()) % delayLineL.size();
+            
+            float delayedL = delayLineL[modReadPos];
+            float delayedR = delayLineR[modReadPos];
 
             // Apply filters to feedback
             delayedL = lpFilter.processSingleSampleRaw(delayedL);
@@ -56,9 +79,26 @@ public:
             delayedR = lpFilter.processSingleSampleRaw(delayedR);
             delayedR = hpFilter.processSingleSampleRaw(delayedR);
 
+            // Stereo mode processing
+            float feedbackL = delayedL;
+            float feedbackR = delayedR;
+            
+            if (stereoMode == PingPong)
+            {
+                // Swap channels in feedback path
+                feedbackL = delayedR;
+                feedbackR = delayedL;
+            }
+            else if (stereoMode == Mono)
+            {
+                // Sum to mono
+                float mono = (delayedL + delayedR) * 0.5f;
+                feedbackL = feedbackR = mono;
+            }
+
             // Write to delay line (input + feedback)
-            delayLineL[writePos] = leftChannel[i] + delayedL * feedback;
-            delayLineR[writePos] = rightChannel[i] + delayedR * feedback;
+            delayLineL[writePos] = leftChannel[i] + feedbackL * feedback;
+            delayLineR[writePos] = rightChannel[i] + feedbackR * feedback;
 
             // Mix wet/dry
             leftChannel[i] = leftChannel[i] * (1.0f - wetLevel) + delayedL * wetLevel;
@@ -73,6 +113,7 @@ public:
         std::fill(delayLineL.begin(), delayLineL.end(), 0.0f);
         std::fill(delayLineR.begin(), delayLineR.end(), 0.0f);
         writePos = 0;
+        lfoPhase = 0.0f;
         lpFilter.reset();
         hpFilter.reset();
     }
@@ -84,5 +125,9 @@ private:
     int delaySamples = 0;
     float feedback = 0.5f;
     float wetLevel = 0.5f;
+    float lfoPhase = 0.0f;
+    float modRate = 0.0f;
+    float modDepth = 0.0f;
+    StereoMode stereoMode = Stereo;
     juce::IIRFilter lpFilter, hpFilter;
 };

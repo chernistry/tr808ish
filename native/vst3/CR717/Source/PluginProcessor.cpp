@@ -257,12 +257,21 @@ void CR717Processor::updateFXParameters()
     reverb.setDamping(apvts.getRawParameterValue(ParamIDs::reverbDamp)->load());
     reverb.setWidth(apvts.getRawParameterValue(ParamIDs::reverbWidth)->load());
     reverb.setWetLevel(apvts.getRawParameterValue(ParamIDs::reverbWet)->load());
+    reverb.setPreDelay(apvts.getRawParameterValue(ParamIDs::reverbPreDelay)->load());
+    reverb.setDiffusion(apvts.getRawParameterValue(ParamIDs::reverbDiffusion)->load());
     
     // Delay
     float delayBeats = apvts.getRawParameterValue(ParamIDs::delayTime)->load();
     delay.setDelayTime(delayBeats, hostBPM);
     delay.setFeedback(apvts.getRawParameterValue(ParamIDs::delayFeedback)->load());
     delay.setWetLevel(apvts.getRawParameterValue(ParamIDs::delayWet)->load());
+    
+    int stereoMode = static_cast<int>(apvts.getRawParameterValue(ParamIDs::delayStereoMode)->load());
+    delay.setStereoMode(static_cast<TempoSyncDelay::StereoMode>(stereoMode));
+    
+    float modRate = apvts.getRawParameterValue(ParamIDs::delayModRate)->load();
+    float modDepth = apvts.getRawParameterValue(ParamIDs::delayModDepth)->load();
+    delay.setModulation(modRate, modDepth);
     
     // Master Dynamics
     masterDynamics.setThreshold(apvts.getRawParameterValue(ParamIDs::compThreshold)->load());

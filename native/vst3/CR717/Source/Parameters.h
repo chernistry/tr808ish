@@ -108,11 +108,16 @@ namespace ParamIDs
     inline constexpr auto reverbDamp = "reverbDamp";
     inline constexpr auto reverbWidth = "reverbWidth";
     inline constexpr auto reverbWet = "reverbWet";
+    inline constexpr auto reverbPreDelay = "reverbPreDelay";
+    inline constexpr auto reverbDiffusion = "reverbDiffusion";
     
     // Delay
     inline constexpr auto delayTime = "delayTime";
     inline constexpr auto delayFeedback = "delayFeedback";
     inline constexpr auto delayWet = "delayWet";
+    inline constexpr auto delayStereoMode = "delayStereoMode";
+    inline constexpr auto delayModRate = "delayModRate";
+    inline constexpr auto delayModDepth = "delayModDepth";
     
     // Master Dynamics
     inline constexpr auto compThreshold = "compThreshold";
@@ -249,11 +254,16 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbDamp, 1}, "Reverb Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbWidth, 1}, "Reverb Width", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbWet, 1}, "Reverb Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbPreDelay, 1}, "Reverb PreDelay", juce::NormalisableRange<float>(0.0f, 100.0f), 20.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::reverbDiffusion, 1}, "Reverb Diffusion", juce::NormalisableRange<float>(0.0f, 1.0f), 0.7f));
     
     // Delay
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayTime, 1}, "Delay Time", juce::NormalisableRange<float>(0.125f, 1.0f), 0.25f)); // 1/8 to 1 beat
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayFeedback, 1}, "Delay Feedback", juce::NormalisableRange<float>(0.0f, 0.9f), 0.4f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayWet, 1}, "Delay Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ParamIDs::delayStereoMode, 1}, "Delay Mode", juce::StringArray{"Mono", "Ping-Pong", "Stereo"}, 2));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayModRate, 1}, "Delay Mod Rate", juce::NormalisableRange<float>(0.1f, 5.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayModDepth, 1}, "Delay Mod Depth", juce::NormalisableRange<float>(0.0f, 10.0f), 0.0f));
     
     // Master Dynamics
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compThreshold, 1}, "Comp Threshold", juce::NormalisableRange<float>(-40.0f, 0.0f), -12.0f));
