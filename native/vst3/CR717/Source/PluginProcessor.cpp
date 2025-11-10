@@ -264,8 +264,21 @@ void CR717Processor::updateFXParameters()
     delay.setWetLevel(apvts.getRawParameterValue(ParamIDs::delayWet)->load());
     
     // Master Dynamics
-    masterDynamics.setCompressorThreshold(apvts.getRawParameterValue(ParamIDs::compThreshold)->load());
-    masterDynamics.setCompressorRatio(apvts.getRawParameterValue(ParamIDs::compRatio)->load());
+    masterDynamics.setThreshold(apvts.getRawParameterValue(ParamIDs::compThreshold)->load());
+    
+    // Map ratio choice to actual values: 1:1, 2:1, 4:1, 8:1, 10:1, 20:1, ∞:1
+    int ratioChoice = static_cast<int>(apvts.getRawParameterValue(ParamIDs::compRatio)->load());
+    const float ratios[] = {1.0f, 2.0f, 4.0f, 8.0f, 10.0f, 20.0f, 100.0f};
+    masterDynamics.setRatio(ratios[juce::jlimit(0, 6, ratioChoice)]);
+    
+    masterDynamics.setAttack(apvts.getRawParameterValue(ParamIDs::compAttack)->load());
+    masterDynamics.setRelease(apvts.getRawParameterValue(ParamIDs::compRelease)->load());
+    masterDynamics.setKnee(apvts.getRawParameterValue(ParamIDs::compKnee)->load());
+    masterDynamics.setMakeup(apvts.getRawParameterValue(ParamIDs::compMakeup)->load());
+    masterDynamics.setAutoMakeup(apvts.getRawParameterValue(ParamIDs::compAutoMakeup)->load() > 0.5f);
+    masterDynamics.setScHpfFreq(apvts.getRawParameterValue(ParamIDs::compScHpf)->load());
+    masterDynamics.setDetectorMode(apvts.getRawParameterValue(ParamIDs::compDetector)->load() > 0.5f);
+    masterDynamics.setLookahead(apvts.getRawParameterValue(ParamIDs::compLookahead)->load());
     masterDynamics.setLimiterThreshold(apvts.getRawParameterValue(ParamIDs::limiterThreshold)->load());
 }
 

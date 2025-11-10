@@ -117,6 +117,14 @@ namespace ParamIDs
     // Master Dynamics
     inline constexpr auto compThreshold = "compThreshold";
     inline constexpr auto compRatio = "compRatio";
+    inline constexpr auto compAttack = "compAttack";
+    inline constexpr auto compRelease = "compRelease";
+    inline constexpr auto compKnee = "compKnee";
+    inline constexpr auto compMakeup = "compMakeup";
+    inline constexpr auto compAutoMakeup = "compAutoMakeup";
+    inline constexpr auto compScHpf = "compScHpf";
+    inline constexpr auto compDetector = "compDetector";
+    inline constexpr auto compLookahead = "compLookahead";
     inline constexpr auto compEnabled = "compEnabled";
     inline constexpr auto limiterThreshold = "limiterThreshold";
     inline constexpr auto limiterEnabled = "limiterEnabled";
@@ -238,8 +246,16 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::delayWet, 1}, "Delay Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
     
     // Master Dynamics
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compThreshold, 1}, "Comp Threshold", juce::NormalisableRange<float>(-24.0f, 0.0f), -12.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compRatio, 1}, "Comp Ratio", juce::NormalisableRange<float>(1.0f, 10.0f), 3.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compThreshold, 1}, "Comp Threshold", juce::NormalisableRange<float>(-40.0f, 0.0f), -12.0f));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ParamIDs::compRatio, 1}, "Comp Ratio", juce::StringArray{"1:1", "2:1", "4:1", "8:1", "10:1", "20:1", "∞:1"}, 2));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compAttack, 1}, "Comp Attack", juce::NormalisableRange<float>(0.05f, 100.0f, 0.0f, 0.3f), 10.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compRelease, 1}, "Comp Release", juce::NormalisableRange<float>(10.0f, 2000.0f, 0.0f, 0.3f), 100.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compKnee, 1}, "Comp Knee", juce::NormalisableRange<float>(0.0f, 12.0f), 6.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compMakeup, 1}, "Comp Makeup", juce::NormalisableRange<float>(-12.0f, 24.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::compAutoMakeup, 1}, "Comp Auto Makeup", false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compScHpf, 1}, "Comp SC HPF", juce::NormalisableRange<float>(20.0f, 500.0f, 0.0f, 0.3f), 80.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::compDetector, 1}, "Comp RMS Mode", true));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::compLookahead, 1}, "Comp Lookahead", juce::NormalisableRange<float>(0.0f, 5.0f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::compEnabled, 1}, "Comp Enabled", true));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::limiterThreshold, 1}, "Limiter Threshold", juce::NormalisableRange<float>(-6.0f, 0.0f), -0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ParamIDs::limiterEnabled, 1}, "Limiter Enabled", true));
