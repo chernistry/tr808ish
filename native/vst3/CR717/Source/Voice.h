@@ -21,6 +21,8 @@ public:
     void setDecay(float decay) { targetDecay = decay; }
     void setTone(float tone) { targetTone = tone; }
     void setPan(float pan) { targetPan = pan; }
+    void setFilterCutoff(float cutoff) { targetFilterCutoff = cutoff; }
+    void setFilterResonance(float res) { targetFilterRes = res; }
 
 protected:
     double sampleRate = 44100.0;
@@ -39,6 +41,8 @@ protected:
     float targetDecay = 0.5f;
     float targetTone = 0.5f;
     float targetPan = 0.0f;
+    float targetFilterCutoff = 1000.0f;
+    float targetFilterRes = 0.5f;
     
     void updateSmoothedValues()
     {

@@ -184,6 +184,8 @@ void CR717Processor::updateVoiceParameters()
     bassDrum.setDecay(apvts.getRawParameterValue(ParamIDs::bdDecay)->load());
     bassDrum.setTone(apvts.getRawParameterValue(ParamIDs::bdTone)->load());
     bassDrum.setPan(apvts.getRawParameterValue(ParamIDs::bdPan)->load());
+    bassDrum.setFilterCutoff(apvts.getRawParameterValue(ParamIDs::bdFilterCutoff)->load());
+    bassDrum.setFilterResonance(apvts.getRawParameterValue(ParamIDs::bdFilterRes)->load());
     
     // Snare Drum
     snareDrum.setLevel(apvts.getRawParameterValue(ParamIDs::sdLevel)->load());
@@ -192,6 +194,8 @@ void CR717Processor::updateVoiceParameters()
     snareDrum.setDecay(apvts.getRawParameterValue(ParamIDs::sdDecay)->load());
     snareDrum.setTone(apvts.getRawParameterValue(ParamIDs::sdSnappy)->load());
     snareDrum.setPan(apvts.getRawParameterValue(ParamIDs::sdPan)->load());
+    snareDrum.setFilterCutoff(apvts.getRawParameterValue(ParamIDs::sdFilterCutoff)->load());
+    snareDrum.setFilterResonance(apvts.getRawParameterValue(ParamIDs::sdFilterRes)->load());
     
     // Toms
     lowTom.setLevel(apvts.getRawParameterValue(ParamIDs::ltLevel)->load());
@@ -216,12 +220,16 @@ void CR717Processor::updateVoiceParameters()
     closedHat.setLevel(apvts.getRawParameterValue(ParamIDs::chLevel)->load());
     closedHat.setTone(apvts.getRawParameterValue(ParamIDs::chTone)->load());
     closedHat.setPan(apvts.getRawParameterValue(ParamIDs::chPan)->load());
+    closedHat.setFilterCutoff(apvts.getRawParameterValue(ParamIDs::chFilterCutoff)->load());
+    closedHat.setFilterResonance(apvts.getRawParameterValue(ParamIDs::chFilterRes)->load());
     
     // Open Hi-Hat
     openHat.setLevel(apvts.getRawParameterValue(ParamIDs::ohLevel)->load());
     openHat.setDecay(apvts.getRawParameterValue(ParamIDs::ohDecay)->load());
     openHat.setTone(apvts.getRawParameterValue(ParamIDs::ohTone)->load());
     openHat.setPan(apvts.getRawParameterValue(ParamIDs::ohPan)->load());
+    openHat.setFilterCutoff(apvts.getRawParameterValue(ParamIDs::ohFilterCutoff)->load());
+    openHat.setFilterResonance(apvts.getRawParameterValue(ParamIDs::ohFilterRes)->load());
     
     // Clap
     clap.setLevel(apvts.getRawParameterValue(ParamIDs::cpLevel)->load());

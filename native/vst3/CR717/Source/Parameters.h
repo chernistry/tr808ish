@@ -13,6 +13,8 @@ namespace ParamIDs
     inline constexpr auto bdDecay = "bdDecay";
     inline constexpr auto bdTone = "bdTone";
     inline constexpr auto bdPan = "bdPan";
+    inline constexpr auto bdFilterCutoff = "bdFilterCutoff";
+    inline constexpr auto bdFilterRes = "bdFilterRes";
     
     // SD
     inline constexpr auto sdLevel = "sdLevel";
@@ -21,6 +23,8 @@ namespace ParamIDs
     inline constexpr auto sdDecay = "sdDecay";
     inline constexpr auto sdSnappy = "sdSnappy";
     inline constexpr auto sdPan = "sdPan";
+    inline constexpr auto sdFilterCutoff = "sdFilterCutoff";
+    inline constexpr auto sdFilterRes = "sdFilterRes";
     
     // LT, MT, HT
     inline constexpr auto ltLevel = "ltLevel";
@@ -54,11 +58,15 @@ namespace ParamIDs
     inline constexpr auto chLevel = "chLevel";
     inline constexpr auto chTone = "chTone";
     inline constexpr auto chPan = "chPan";
+    inline constexpr auto chFilterCutoff = "chFilterCutoff";
+    inline constexpr auto chFilterRes = "chFilterRes";
     
     inline constexpr auto ohLevel = "ohLevel";
     inline constexpr auto ohDecay = "ohDecay";
     inline constexpr auto ohTone = "ohTone";
     inline constexpr auto ohPan = "ohPan";
+    inline constexpr auto ohFilterCutoff = "ohFilterCutoff";
+    inline constexpr auto ohFilterRes = "ohFilterRes";
     
     // CY, RD, CB
     inline constexpr auto cyLevel = "cyLevel";
@@ -159,6 +167,8 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdDecay, 1}, "BD Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdTone, 1}, "BD Tone", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdPan, 1}, "BD Pan", juce::NormalisableRange<float>(-1.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdFilterCutoff, 1}, "BD Filter", juce::NormalisableRange<float>(20.0f, 500.0f, 0.0f, 0.3f), 80.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::bdFilterRes, 1}, "BD Resonance", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     
     // SD
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdLevel, 1}, "SD Level", juce::NormalisableRange<float>(0.0f, 1.0f), 0.8f));
@@ -167,6 +177,8 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdDecay, 1}, "SD Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdSnappy, 1}, "SD Snappy", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdPan, 1}, "SD Pan", juce::NormalisableRange<float>(-1.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdFilterCutoff, 1}, "SD Filter", juce::NormalisableRange<float>(500.0f, 8000.0f, 0.0f, 0.3f), 3000.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::sdFilterRes, 1}, "SD Resonance", juce::NormalisableRange<float>(0.0f, 1.0f), 0.7f));
     
     // LT, MT, HT
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ltLevel, 1}, "LT Level", juce::NormalisableRange<float>(0.0f, 1.0f), 0.7f));
@@ -200,11 +212,15 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chLevel, 1}, "CH Level", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chTone, 1}, "CH Tone", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chPan, 1}, "CH Pan", juce::NormalisableRange<float>(-1.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chFilterCutoff, 1}, "CH Filter", juce::NormalisableRange<float>(5000.0f, 16000.0f, 0.0f, 0.3f), 8000.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::chFilterRes, 1}, "CH Resonance", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohLevel, 1}, "OH Level", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohDecay, 1}, "OH Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohTone, 1}, "OH Tone", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohPan, 1}, "OH Pan", juce::NormalisableRange<float>(-1.0f, 1.0f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohFilterCutoff, 1}, "OH Filter", juce::NormalisableRange<float>(5000.0f, 16000.0f, 0.0f, 0.3f), 10000.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::ohFilterRes, 1}, "OH Resonance", juce::NormalisableRange<float>(0.0f, 1.0f), 0.4f));
     
     // CY, RD, CB
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ParamIDs::cyLevel, 1}, "CY Level", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
